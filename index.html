@@ -5,9 +5,29 @@
         <title>jikomissar</title>
 
         <link rel="stylesheet" type="text/css" href="styles.css">
+
+        <script id="vertexShader" type="x-shader/x-vertex">
+         attribute vec3 aPosition;
+         varying vec4 fragColor;
+
+         void main() {
+             gl_Position = vec4(aPosition, 1);
+             gl_PointSize = 4.0;
+             fragColor = vec4(1, 1, 1, 1);
+         }
+        </script>
+
+        <script id="fragmentShader" type="x-shader/x-fragment">
+         precision mediump float; /* set float precision */
+         varying vec4 fragColor;
+
+         void main()
+         {
+             gl_FragColor = fragColor; // Point color
+         }
+        </script>
     </head>
     <body>
-
         <div id="errorMessage"></div>
 
         <canvas id="webglCanvas">
