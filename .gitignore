@@ -1,0 +1,12 @@
+# -*- mode: gitignore; -*-
+
+# Node
+node_modules/
+dist/
+build/
+.cache/
+
+# Emacs
+*~
+\#*#
+.\#*
