@@ -1,0 +1,15 @@
+{
+    "name": "project2",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.html",
+    "scripts": {
+        "dev": "parcel index.html",
+        "build": "parcel build --public-url . index.html"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "parcel": "^1.11.0"
+    }
+}
