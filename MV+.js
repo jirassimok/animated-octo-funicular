@@ -10,6 +10,11 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+function argumentsToArray(args)
+{
+    return [].concat.apply([], Array.prototype.slice.apply(args));
+}
+
 //----------------------------------------------------------------------------
 //
 //  Helper functions
@@ -26,16 +31,43 @@ export function radians(degrees) {
 //  Vector Constructors
 //
 
-export function vec2(x = 0, y = 0) {
-    return [x, y];
+export function vec2() {
+    // argumensToArray allows inputs to be any combination of individual
+    // elements and arrays.
+
+    let args = argumentsToArray(arguments);
+
+    switch (args.length) {
+    // Intentional fallthrough
+    case 0: args.push(0); // x
+    case 1: args.push(0); // y
+    }
+    return args.slice(0, 2);
 }
 
-export function vec3(x = 0, y = 0, z = 0) {
-    return [x, y, z];
+export function vec3() {
+    let args = argumentsToArray(arguments);
+
+    switch (args.length) {
+    // Intentional fallthrough
+    case 0: args.push(0); // x
+    case 1: args.push(0); // y
+    case 2: args.push(0); // z
+    }
+    return args.slice(0, 3);
 }
 
 export function vec4(x = 0, y = 0, z = 0, w = 1) {
-    return [x, y, z, w];
+    let args = argumentsToArray(arguments);
+
+    switch (args.length) {
+    // Intentional fallthrough
+    case 0: args.push(0); // x
+    case 1: args.push(0); // y
+    case 2: args.push(0); // z
+    case 3: args.push(1); // w
+    }
+    return args.slice(0, 4);
 }
 
 //----------------------------------------------------------------------------
@@ -43,8 +75,10 @@ export function vec4(x = 0, y = 0, z = 0, w = 1) {
 //  Matrix Constructors
 //
 
-export function mat2(...v)
+export function mat2()
 {
+    let v = argumentsToArray(arguments);
+
     let m = [];
     switch ( v.length ) {
     case 0:
@@ -69,8 +103,10 @@ export function mat2(...v)
 
 //----------------------------------------------------------------------------
 
-export function mat3(...v)
+export function mat3()
 {
+    let v = argumentsToArray(arguments);
+
     let m = [];
     switch ( v.length ) {
     case 0:
@@ -97,8 +133,10 @@ export function mat3(...v)
 
 //----------------------------------------------------------------------------
 
-export function mat4(...v)
+export function mat4()
 {
+    let v = argumentsToArray(arguments);
+
     let m = [];
     switch ( v.length ) {
     case 0:
@@ -439,7 +477,7 @@ export function lookAt(eye, at, up)
 //  Projection Matrix Generators
 //
 
-export function ortho(left, right, bottom, top, near = -1, far = 1)
+export function ortho(left, right, bottom, top, near = 1, far = -1)
 {
     if (left === right) { throw "ortho(): left and right are equal"; }
     if (bottom === top) { throw "ortho(): bottom and top are equal"; }
