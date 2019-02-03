@@ -1,6 +1,6 @@
 "use strict";
 
-import { ortho } from "./MV+.js";
+import { vec3, ortho } from "./MV+.js";
 
 /**
  * Class representing the extent of a data file's contents.
@@ -50,15 +50,21 @@ export class Extent {
         return ortho(this.left, this.right, this.bottom, this.top, this.near, this.far);
     }
 
-    width() {
+    get midpoint() {
+        return vec3((this.left + this.right) / 2,
+                    (this.top + this.bottom) / 2,
+                    (this.near + this.far) / 2);
+    }
+
+    get width() {
         return Math.abs(this.right - this.left);
     }
 
-    height() {
+    get height() {
         return Math.abs(this.top - this.bottom);
     }
 
-    depth() {
+    get depth() {
         return Math.abs(this.near - this.far);
     }
 }
