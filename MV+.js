@@ -500,9 +500,14 @@ export function ortho(left, right, bottom, top, near = 1, far = -1)
 
 //----------------------------------------------------------------------------
 
-export function perspective(fovy, aspect, near, far)
+export function perspectiveDeg(fovy, aspect, near, far)
 {
-    let f = 1.0 / Math.tan( radians(fovy) / 2 );
+    return perspectiveRad(radians(fovy), aspect, near, far);
+}
+
+export function perspectiveRad(fovy, aspect, near, far)
+{
+    let f = 1.0 / Math.tan( fovy / 2 );
     let d = far - near;
 
     let result = mat4();
