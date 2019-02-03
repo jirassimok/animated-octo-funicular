@@ -13,7 +13,7 @@ const MIN_CANVAS_WIDTH  = 200;
 
 //// Setup WebGL and prepare for input
 
-let canvas = document.querySelector("#webglCanvas");
+const canvas = document.querySelector("#webglCanvas");
 
 // Resize the canvas
 canvas.height = Math.round(window.innerHeight / 2);
@@ -22,12 +22,12 @@ if (canvas.height < MIN_CANVAS_HEIGHT) canvas.height = MIN_CANVAS_HEIGHT;
 if (canvas.width < MIN_CANVAS_WIDTH) canvas.width = MIN_CANVAS_WIDTH;
 
 
-let gl = setupWebGL(canvas);
+const gl = setupWebGL(canvas);
 if (gl === null) {
     throw new Error("Failed to set up WebGL");
 }
 
-let program = setupProgram(gl,
+const program = setupProgram(gl,
     document.querySelector("#vertexShader").text,
     document.querySelector("#fragmentShader").text);
 if (program === null) {
@@ -38,20 +38,20 @@ gl.useProgram(program);
 
 // Prepare shader variables
 
-let positionBuffer = gl.createBuffer();
+const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-let indexBuffer = gl.createBuffer();
+const indexBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 // Set up the position attribute
-let positionAttrib = gl.getAttribLocation(program, "aPosition");
+const positionAttrib = gl.getAttribLocation(program, "aPosition");
 gl.vertexAttribPointer(positionAttrib, 3, gl.FLOAT, false, 0, 0);
 gl.enableVertexAttribArray(positionAttrib);
 
-let modelMatrix = gl.getUniformLocation(program, "modelMatrix");
-let viewMatrix = gl.getUniformLocation(program, "viewMatrix");
-let projectionMatrix = gl.getUniformLocation(program, "projectionMatrix");
+const modelMatrix = gl.getUniformLocation(program, "modelMatrix");
+const viewMatrix = gl.getUniformLocation(program, "viewMatrix");
+const projectionMatrix = gl.getUniformLocation(program, "projectionMatrix");
 
 
 function clearCanvas() {
