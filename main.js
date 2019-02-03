@@ -21,6 +21,8 @@ canvas.width = Math.round(document.body.clientWidth);
 if (canvas.height < MIN_CANVAS_HEIGHT) canvas.height = MIN_CANVAS_HEIGHT;
 if (canvas.width < MIN_CANVAS_WIDTH) canvas.width = MIN_CANVAS_WIDTH;
 
+const ASPECT_RATIO = canvas.width / canvas.height;
+
 
 const gl = setupWebGL(canvas);
 if (gl === null) {
@@ -63,6 +65,40 @@ function clearCanvas() {
 }
 
 /**
+ * Set up the projection and view matrices based on the mesh
+ *
+ * The mesh is viewed from distance equal to its depth (z-width), with a 10%
+ * margin in all directions.
+ */
+function setProjection(mesh) {
+    let bounds = mesh.extent;
+
+    let z = bounds.near + bounds.depth;
+
+    // y-FOV required to view entire bounding box from distance = depth
+    let fovy = 2 * Math.atan(bounds.height / (2 * bounds.depth));
+
+    let projectionMatrix = MV.perspectiveRad(
+        fovy, ASPECT_RATIO, bounds.near, bounds.far);
+
+	let eye = vec3(bounds.midpoint[0],
+                   bounds.midpoint[1],
+                   bounds.near + bounds.depth),
+	    at = bounds.midpoint,
+	    up = vec3(0, 1, 0);
+
+	var viewMatrix = MV.lookAt(eye, at, up);
+
+    gl.uniformMatrix4fv(shader.projectionMatrix,
+                        false,
+                        MV.flatten(projectionMatrix));
+
+    gl.uniformMatrix4fv(shader.viewMatrix,
+                        false,
+                        MV.flatten(viewMatrix));
+}
+
+/**
  * Draw the shape specified by the arguments
  * @param {Mesh} mesh
  */
@@ -76,17 +112,7 @@ function drawShape(mesh) {
     //               new Uint16Array(faces.flat(1)),
     //               gl.STATIC_DRAW);
 
-    let proj = MV.perspective(60, 4/3, -1+Math.sqrt(3), -2);
-    gl.uniformMatrix4fv(shader.projectionMatrix, false, MV.flatten(proj));
-
-	let eye = vec3(0.75, 1.25, 2);
-	let at = vec3(0.0, 0.0, 0.0);
-	let up = vec3(0.0, 1.0, 0.0);
-
-	var vMatrix = MV.lookAt(eye, at, up);
-
     gl.uniformMatrix4fv(shader.modelMatrix, false, MV.flatten(MV.mat4()));
-    gl.uniformMatrix4fv(shader.viewMatrix, false, MV.flatten(vMatrix));
 
     clearCanvas();
 
@@ -104,7 +130,7 @@ document.querySelector("#fileControls input[type='file']")
             .then(parsePly)
             .then(([vertices, faces]) => {
                 let mesh = new Mesh(vertices, faces);
-                console.log(mesh);
+                setProjection(mesh);
                 return drawShape(mesh);
             })
             .catch(reason => {
