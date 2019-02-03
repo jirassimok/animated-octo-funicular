@@ -26,6 +26,11 @@ export class Extent {
      */
     static fromVecs(vecs) {
         let size = vecs[0].length;
+
+        let extent = new Extent(vecs[0][0], vecs[0][0],
+                                vecs[0][1], vecs[0][1],
+                                vecs[0][2], vecs[0][2]);
+
         return vecs.reduce(
             (ext, vec) => {
                 ext.left = Math.min(ext.left, vec[0]);
@@ -37,7 +42,7 @@ export class Extent {
                     ext.far = Math.min(ext.far, vec[2]);
                 }
                 return ext;
-            }, new Extent(0, 1, 0, 1));
+            }, extent);
     }
 
     /** Get the default extent */
