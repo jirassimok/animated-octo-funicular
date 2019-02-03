@@ -24,7 +24,7 @@ export function readFile(event) {
 /**
  * Parse a limited subset of PLY files
  * @param {String} text  The text of a PLY file
- * @returns {[vec2[], number[][]]} The vertices and faces specified by the file.
+ * @returns {[vec3[], number[][]]} The vertices and faces specified by the file.
  *
  * Only parses ASCII.
  *
@@ -86,6 +86,10 @@ export function parsePly(text) {
 
     if (vertices.length !== numvertices || faces.length !== numfaces) {
         parseError("wrong number of vertices or faces"); // wrong number of lines
+    }
+
+    if (vertices.some(vertex => vertex.length !== 3)) {
+        parseError("wrong number of coordinates in a vertex");
     }
 
     if (faces.some(face => face[0] !== face.length - 1)) {
