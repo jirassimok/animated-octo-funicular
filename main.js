@@ -118,9 +118,8 @@ function drawShape(mesh) {
 
     clearCanvas();
 
-    let numfaces = mesh.numfaces;
-    for (let i = 0; i < numfaces; ++i) {
-        gl.drawArrays(gl.LINE_LOOP, mesh.faceoffset(i), mesh.facesize(i));
+    for (let [size, offset] of mesh.faceoffsets) {
+        gl.drawArrays(gl.LINE_LOOP, offset, size);
     }
 
     // gl.drawElements(gl.LINES, faces.length, gl.UNSIGNED_SHORT, 0);
