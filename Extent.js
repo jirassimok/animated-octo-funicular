@@ -6,7 +6,7 @@ import { ortho } from "./MV+.js";
  * Class representing the extent of a data file's contents.
  */
 export class Extent {
-    constructor(left, top, right, bottom, near = -1, far = 1) {
+    constructor(left, top, right, bottom, near = 1, far = -1) {
         this.left = left;
         this.right = right;
         this.top = top;
@@ -42,7 +42,7 @@ export class Extent {
 
     /** Get the default extent */
     static basic() {
-        return new Extent(-1, 1, -1, 1, -1, 1);
+        return new Extent(-1, 1, -1, 1, 1, -1);
     }
 
     /** Convert to orthographic projection matrix */
