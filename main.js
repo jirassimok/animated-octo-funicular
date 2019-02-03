@@ -62,31 +62,6 @@ function clearCanvas() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 }
 
-const points = [
-    vec3(-0.5, -0.5, -0.5),
-    vec3(0.5, -0.5, -0.5),
-    vec3(0.5, 0.5, -0.5),
-    vec3(-0.5, 0.5, -0.5),
-    vec3(-0.5, -0.5, 0.5),
-    vec3(0.5, -0.5, 0.5),
-    vec3(0.5, 0.5, 0.5),
-    vec3(-0.5, 0.5, 0.5),
-];
-
-const faces = [
-    vec3(3, 2, 1),
-    vec3(3, 1, 0),
-    vec3(6, 7, 4),
-    vec3(6, 4, 5),
-    vec3(5, 1, 2),
-    vec3(5, 2, 6),
-    vec3(0, 4, 7),
-    vec3(0, 7, 3),
-    vec3(6, 2, 3),
-    vec3(6, 3, 7),
-    vec3(4, 0, 1),
-    vec3(4, 1, 5),
-];
 /**
  * Draw the shape specified by the arguments
  * @param {Mesh} mesh
