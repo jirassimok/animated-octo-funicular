@@ -3,6 +3,7 @@
 import { readFile, parsePly } from "./filereaders.js";
 import { setupWebGL, setupProgram } from "./webgl-setup.js";
 import { Extent } from "./Extent.js";
+import { Mesh } from "./Mesh.js";
 import { vec2, vec3, vec4 } from "./MV+.js";
 
 import * as MV from "./MV+.js";
@@ -86,19 +87,19 @@ const faces = [
 ];
 /**
  * Draw the shape specified by the arguments
- * @param {vec3[][]} vertices List of vertices
+ * @param {Mesh} mesh
  */
-function drawShape(vertices, faces) {
+function drawShape(mesh) {
 
     gl.bufferData(gl.ARRAY_BUFFER,
-                  MV.flatten(vertices),
+                  MV.flatten(mesh.vertices),
                   gl.STATIC_DRAW);
 
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
-                  new Uint16Array(faces.flat(1)),
-                  gl.STATIC_DRAW);
+    // gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
+    //               new Uint16Array(faces.flat(1)),
+    //               gl.STATIC_DRAW);
 
-    let proj = MV.perspective(60, 4/3,  Math.sqrt(3), -2);
+    let proj = MV.perspective(60, 4/3, -1+Math.sqrt(3), -2);
     gl.uniformMatrix4fv(projectionMatrix, false, MV.flatten(proj));
 
 	let eye = vec3(0.75, 1.25, 2);
@@ -117,7 +118,12 @@ function drawShape(vertices, faces) {
 
     clearCanvas();
 
-    gl.drawElements(gl.LINES, faces.length, gl.UNSIGNED_SHORT, 0);
+    let numfaces = mesh.numfaces;
+    for (let i = 0; i < numfaces; ++i) {
+        gl.drawArrays(gl.LINE_LOOP, mesh.faceoffset(i), mesh.facesize(i));
+    }
+
+    // gl.drawElements(gl.LINES, faces.length, gl.UNSIGNED_SHORT, 0);
 }
 
 
@@ -125,7 +131,11 @@ document.querySelector("#fileControls input[type='file']")
     .addEventListener("change", e => {
         readFile(e)
             .then(parsePly)
-            .then(([vertices, faces]) => drawShape(vertices, faces))
+            .then(([vertices, faces]) => {
+                let mesh = new Mesh(vertices, faces);
+                console.log(mesh);
+                return drawShape(mesh);
+            })
             .catch(reason => {
                 document
                     .querySelector("#fileControls .error-message")
