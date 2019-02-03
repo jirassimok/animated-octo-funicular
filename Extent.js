@@ -6,7 +6,7 @@ import { vec3, ortho } from "./MV+.js";
  * Class representing the extent of a data file's contents.
  */
 export class Extent {
-    constructor(left, top, right, bottom, near = 1, far = -1) {
+    constructor(left, right, bottom, top, near = 1, far = -1) {
         this.left = left;
         this.right = right;
         this.top = top;
@@ -33,11 +33,11 @@ export class Extent {
                 ext.top = Math.max(ext.top, vec[1]);
                 ext.bottom = Math.min(ext.bottom, vec[1]);
                 if (size > 2) {
-                    ext.near = Math.min(ext.near, vec[2]);
-                    ext.far = Math.max(ext.far, vec[2]);
+                    ext.near = Math.max(ext.near, vec[2]);
+                    ext.far = Math.min(ext.far, vec[2]);
                 }
                 return ext;
-            }, new Extent(0, 1, 1, 0));
+            }, new Extent(0, 1, 0, 1));
     }
 
     /** Get the default extent */
