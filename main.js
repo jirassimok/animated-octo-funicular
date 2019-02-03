@@ -36,7 +36,7 @@ if (program === null) {
 
 gl.useProgram(program);
 
-// Prepare shader variables
+
 
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -44,14 +44,16 @@ gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 const indexBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
-// Set up the position attribute
-const positionAttrib = gl.getAttribLocation(program, "aPosition");
-gl.vertexAttribPointer(positionAttrib, 3, gl.FLOAT, false, 0, 0);
-gl.enableVertexAttribArray(positionAttrib);
+// Set up the shader variables
+const shader = Object.freeze({
+    position:         gl.getAttribLocation(program, "aPosition"),
+    modelMatrix:      gl.getUniformLocation(program, "modelMatrix"),
+    viewMatrix:       gl.getUniformLocation(program, "viewMatrix"),
+    projectionMatrix: gl.getUniformLocation(program, "projectionMatrix")
+});
 
-const modelMatrix = gl.getUniformLocation(program, "modelMatrix");
-const viewMatrix = gl.getUniformLocation(program, "viewMatrix");
-const projectionMatrix = gl.getUniformLocation(program, "projectionMatrix");
+gl.vertexAttribPointer(shader.position, 3, gl.FLOAT, false, 0, 0);
+gl.enableVertexAttribArray(shader.position);
 
 
 function clearCanvas() {
@@ -100,7 +102,7 @@ function drawShape(mesh) {
     //               gl.STATIC_DRAW);
 
     let proj = MV.perspective(60, 4/3, -1+Math.sqrt(3), -2);
-    gl.uniformMatrix4fv(projectionMatrix, false, MV.flatten(proj));
+    gl.uniformMatrix4fv(shader.projectionMatrix, false, MV.flatten(proj));
 
 	let eye = vec3(0.75, 1.25, 2);
 	let at = vec3(0.0, 0.0, 0.0);
@@ -108,13 +110,8 @@ function drawShape(mesh) {
 
 	var vMatrix = MV.lookAt(eye, at, up);
 
-    // setView(vec3(2, 2, 2),
-    //         vec3(0, 0, 0),
-    //         vec3(0, 1, 0));
-
-
-    gl.uniformMatrix4fv(modelMatrix, false, MV.flatten(MV.mat4()));
-    gl.uniformMatrix4fv(viewMatrix, false, MV.flatten(vMatrix));
+    gl.uniformMatrix4fv(shader.modelMatrix, false, MV.flatten(MV.mat4()));
+    gl.uniformMatrix4fv(shader.viewMatrix, false, MV.flatten(vMatrix));
 
     clearCanvas();
 
