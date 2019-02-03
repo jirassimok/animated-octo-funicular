@@ -14,7 +14,7 @@ const MIN_CANVAS_WIDTH  = 200;
 
 let canvas = document.querySelector("#webglCanvas");
 
-// Resize the canvas to a minimum of
+// Resize the canvas
 canvas.height = Math.round(window.innerHeight / 2);
 canvas.width = Math.round(document.body.clientWidth);
 if (canvas.height < MIN_CANVAS_HEIGHT) canvas.height = MIN_CANVAS_HEIGHT;
@@ -35,6 +35,8 @@ if (program === null) {
 
 gl.useProgram(program);
 
+// Prepare shader variables
+
 let positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
@@ -45,6 +47,10 @@ gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 let positionAttrib = gl.getAttribLocation(program, "aPosition");
 gl.vertexAttribPointer(positionAttrib, 3, gl.FLOAT, false, 0, 0);
 gl.enableVertexAttribArray(positionAttrib);
+
+let modelMatrix = gl.getUniformLocation(program, "modelMatrix");
+let viewMatrix = gl.getUniformLocation(program, "viewMatrix");
+let projectionMatrix = gl.getUniformLocation(program, "projectionMatrix");
 
 
 function clearCanvas() {
@@ -78,34 +84,52 @@ const faces = [
     vec3(4, 0, 1),
     vec3(4, 1, 5),
 ];
+/**
+ * Draw the shape specified by the arguments
+ * @param {vec3[][]} vertices List of vertices
+ */
+function drawShape(vertices, faces) {
 
-gl.bufferData(gl.ARRAY_BUFFER,
-              MV.flatten(points),
-              gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER,
+                  MV.flatten(vertices),
+                  gl.STATIC_DRAW);
 
-gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
-              new Uint16Array(faces.flat(1)),
-              gl.STATIC_DRAW);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
+                  new Uint16Array(faces.flat(1)),
+                  gl.STATIC_DRAW);
 
-clearCanvas();
+    let proj = MV.perspective(60, 4/3,  Math.sqrt(3), -2);
+    gl.uniformMatrix4fv(projectionMatrix, false, MV.flatten(proj));
 
-gl.drawElements(gl.TRIANGLES, faces.length, gl.UNSIGNED_SHORT, 0);
+	let eye = vec3(0.75, 1.25, 2);
+	let at = vec3(0.0, 0.0, 0.0);
+	let up = vec3(0.0, 1.0, 0.0);
+
+	var vMatrix = MV.lookAt(eye, at, up);
+
+    // setView(vec3(2, 2, 2),
+    //         vec3(0, 0, 0),
+    //         vec3(0, 1, 0));
 
 
+    gl.uniformMatrix4fv(modelMatrix, false, MV.flatten(MV.mat4()));
+    gl.uniformMatrix4fv(viewMatrix, false, MV.flatten(vMatrix));
 
+    clearCanvas();
 
-
+    gl.drawElements(gl.LINES, faces.length, gl.UNSIGNED_SHORT, 0);
+}
 
 
 document.querySelector("#fileControls input[type='file']")
     .addEventListener("change", e => {
         readFile(e)
             .then(parsePly)
-            .then(([v, f]) => {
-                console.log(v);
-                console.log(f);
-            })
-            .catch(reason => document
-                   .querySelector("#fileControls .error-message")
-                   .innerText = "parse error; see console for details");
+            .then(([vertices, faces]) => drawShape(vertices, faces))
+            .catch(reason => {
+                document
+                    .querySelector("#fileControls .error-message")
+                    .innerText = "parse error; see console for details";
+                throw reason;
+            });
     });
