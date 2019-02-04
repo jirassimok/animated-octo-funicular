@@ -71,10 +71,22 @@ class AnimationState {
         this.xtranslation = new ReversableTimer();
         this.ytranslation = new ReversableTimer();
         this.ztranslation = new ReversableTimer();
+
+        this.animations = [this.explosion,
+                           this.xrotation,
+                           this.xtranslation,
+                           this.ytranslation,
+                           this.ztranslation];
     }
 
     cancel() {
         window.cancelAnimationFrame(this.id);
+    }
+
+    stopAnimations() {
+        for (let a of this.animations) {
+            a.stop();
+        }
     }
 }
 
@@ -205,6 +217,15 @@ function drawMesh(mesh) {
 
 window.addEventListener("keydown", e => {
     switch (e.key) {
+    case "Q": // fallthrough for shift
+    case "q":
+        animationState = new AnimationState();
+        break;
+    case "F": // fallthrough for shift
+    case "f":
+        animationState.stopAnimations();
+        break;
+
     case "B": // fallthrough for shift
     case "b":
         animationState.explosion.toggle();
