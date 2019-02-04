@@ -187,12 +187,13 @@ function animateMesh(mesh) {
 function drawMesh(mesh) {
     let bounds = mesh.extent;
 
-    let explosion_scale = 0.01, // percent of explosion per ms
+    let explosion_scale = 0.1,  // size of explosion as percentage of largest dimension
+        explosion_speed = 0.01, // percent of explosion per ms
         rotation_speed = 360/1000, // rotation per ms
-        translation_scale = 0.001; // translation per ms as percent of dimension
+        translation_scale = 0.01; // translation per ms as percent of dimension
 
-    let explosionSize = Math.max(bounds.width, bounds.height, bounds.depth) * 0.1,
-        t_exp = explosion_scale * animationState.explosion.timeelapsed(), // time in animation
+    let explosionSize = explosion_scale * Math.max(bounds.width, bounds.height, bounds.depth),
+        t_exp = explosion_speed * animationState.explosion.timeelapsed(), // time in animation
         normalScale = (1 - Math.cos(t_exp)) / 2; // Distance of movement along face normals
 
     gl.uniform1f(shader.explosionScale, normalScale * explosionSize);
