@@ -1,5 +1,6 @@
 "use strict";
 
+import { vec3, normalize } from "./MV+.js";
 import { Extent } from "./Extent.js";
 
 export class Mesh {
@@ -22,6 +23,27 @@ export class Mesh {
         }
 
         this._faces = Object.freeze(faceoffsets);
+
+        this._normals = [];
+
+        for (let face of faces) {
+            let face2 = face.slice(1).concat(face[0]);
+            let vertexpairs = face.map((_, i) => [vertices[face[i]],
+                                                  vertices[face2[i]]]);
+            let x = 0,
+                y = 0,
+                z = 0;
+
+            for (let [[x1, y1, z1], [x2, y2, z2]] of vertexpairs) {
+                x += (y1 - y2) * (z1 + z2);
+                y += (z1 - z2) * (x1 + x2);
+                z += (x1 - x2) * (y1 + y2);
+            }
+
+            for (let _ of face) {
+                this._normals.push(normalize(vec3(x, y, z)));
+            }
+        }
     }
 
     /**
@@ -32,9 +54,16 @@ export class Mesh {
     }
 
     /**
-     * @returns the (size, offset) pairs for each face
+     * @returns {[number, number][]} the (size, offset) pairs for each face
      */
     get faceoffsets() {
         return this._faces;
+    }
+
+    /**
+     * @returns {vec3[]} an array of normals for the vertices
+     */
+    get normals() {
+        return this._normals;
     }
 }
