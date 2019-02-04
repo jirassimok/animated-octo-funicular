@@ -11,8 +11,13 @@ export class PausableTimer {
     /** @returns total time active, in milliseconds */
     timeelapsed() {
         return this._time + (this.isrunning
-                             ? (window.performance.now() - this.laststarted)
+                             ? this.timesincestart()
                              : 0);
+    }
+
+    /** @returns time since the timer was last started */
+    timesincestart() {
+        return window.performance.now() - this.laststarted;
     }
 
     /**
@@ -40,8 +45,59 @@ export class PausableTimer {
         if (this.isrunning) {
             this.isrunning = false;
             // Add time since last start to total time
-            this._time += window.performance.now() - this.laststarted;
+            this._time += this.timesincestart();
             this.laststarted = null;
+        }
+    }
+}
+
+/**
+ * Keeps track of time passed, can be paused, and can be run backwards
+ */
+export class ReversableTimer extends PausableTimer {
+    constructor() {
+        super();
+        this.reversed = false;
+    }
+
+    timesincestart() {
+        return (1 - 2 * this.reversed) *
+            (window.performance.now() - this.laststarted);
+    }
+
+    startReverse() {
+        super.stop();
+        this.reversed = true;
+        super.start();
+    }
+
+    startForward() {
+        super.stop();
+        this.reversed = false;
+        super.start();
+    }
+
+    /**
+     * If running forward, stop. Otherwise, run forward.
+     */
+    toggleForward() {
+        if (this.isrunning && !this.reversed) {
+            super.stop();
+        }
+        else {
+            this.startForward();
+        }
+    }
+
+    /**
+     * If running backward, stop. Otherwise, run backwards.
+     */
+    toggleReverse() {
+        if (this.isrunning && this.reversed) {
+            super.stop();
+        }
+        else {
+            this.startReverse();
         }
     }
 }
