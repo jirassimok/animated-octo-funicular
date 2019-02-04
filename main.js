@@ -225,43 +225,53 @@ window.addEventListener("keydown", e => {
     case "Q": // fallthrough for shift
     case "q":
         animationState = new AnimationState();
+        e.preventDefault();
         break;
     case "F": // fallthrough for shift
     case "f":
         animationState.stopAnimations();
+        e.preventDefault();
         break;
 
     case "B": // fallthrough for shift
     case "b":
         animationState.explosion.toggle();
+        e.preventDefault();
         break;
     case "R": // fallthrough for shift
     case "r":
         animationState.xrotation.toggle();
+        // default event allowed for reloading
         break;
     case "X": // fallthrough for shift
     case "x":
         animationState.xtranslation.toggleForward();
+        e.preventDefault();
         break;
     case "C": // fallthrough for shift
     case "c":
         animationState.xtranslation.toggleReverse();
+        e.preventDefault();
         break;
     case "Y": // fallthrough for shift
     case "y":
         animationState.ytranslation.toggleForward();
+        e.preventDefault();
         break;
     case "U": // fallthrough for shift
     case "u":
         animationState.ytranslation.toggleReverse();
+        e.preventDefault();
         break;
     case "Z": // fallthrough for shift
     case "z":
         animationState.ztranslation.toggleForward();
+        e.preventDefault();
         break;
     case "A": // fallthrough for shift
     case "a":
         animationState.ztranslation.toggleReverse();
+        e.preventDefault();
         break;
     }
 });
