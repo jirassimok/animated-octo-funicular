@@ -26,6 +26,7 @@ if (canvas.width < MIN_CANVAS_WIDTH) canvas.width = MIN_CANVAS_WIDTH;
 const ASPECT_RATIO = canvas.width / canvas.height;
 
 
+
 //// Set up WebGL, the program, buffers, and shader variables
 
 const gl = setupWebGL(canvas);
@@ -60,6 +61,9 @@ const shader = Object.freeze({
     projectionMatrix: gl.getUniformLocation(program, "projectionMatrix"),
 });
 
+
+
+//// Global animation state
 
 /**
  * Class tracking state of each animation (translation, rotation, and explosion)
@@ -117,6 +121,8 @@ class AnimationState {
 let animationState = new AnimationState();
 
 
+
+//// Canvas/GL/Mesh preparation functions
 
 function clearCanvas() {
     gl.clearColor(0, 0, 0, 1);
