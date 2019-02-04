@@ -39,12 +39,11 @@ if (program === null) {
 gl.useProgram(program);
 
 
+const buffers = Object.freeze({
+    position: gl.createBuffer(),
+    normal: gl.createBuffer(),
+});
 
-const positionBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-const indexBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 // Set up the shader variables
 const shader = Object.freeze({
@@ -58,8 +57,6 @@ const shader = Object.freeze({
     projectionMatrix: gl.getUniformLocation(program, "projectionMatrix"),
 });
 
-gl.vertexAttribPointer(shader.position, 3, gl.FLOAT, false, 0, 0);
-gl.enableVertexAttribArray(shader.position);
 
 
 function clearCanvas() {
@@ -107,18 +104,51 @@ function setProjection(mesh) {
 }
 
 /**
- * Draw the shape specified by the arguments
- * @param {Mesh} mesh
+ * Set the normal vectors in the shader for the given mesh
  */
-function drawShape(mesh) {
+function setNormals(mesh) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal);
+
+    gl.vertexAttribPointer(shader.faceNormal, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(shader.faceNormal);
+
+    gl.bufferData(gl.ARRAY_BUFFER,
+                  MV.flatten(mesh.normals),
+                  gl.STATIC_DRAW);
+}
+
+/**
+ * Set the vertices in the shader for the given mesh
+ */
+function setVertices(mesh) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+
+    gl.vertexAttribPointer(shader.position, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(shader.position);
 
     gl.bufferData(gl.ARRAY_BUFFER,
                   MV.flatten(mesh.vertices),
                   gl.STATIC_DRAW);
+}
 
-    // gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
-    //               new Uint16Array(faces.flat(1)),
-    //               gl.STATIC_DRAW);
+
+
+let scale = 0;
+
+/**
+ * Draw and animate the shape specified by the arguments
+ * @param {Mesh} mesh
+ */
+function drawMesh(mesh) {
+    let bounds = mesh.extent;
+    let explosionScale = Math.max(bounds.width, bounds.height, bounds.depth) * 0.1;
+
+    if (scale >= 1) {
+        scale = -1;
+    }
+    scale += 0.025;
+
+    gl.uniform1f(shader.explosionScale, (1 - Math.cos(scale)) * explosionScale);
 
     gl.uniformMatrix4fv(shader.modelMatrix, false, MV.flatten(MV.mat4()));
 
@@ -128,7 +158,7 @@ function drawShape(mesh) {
         gl.drawArrays(gl.LINE_LOOP, offset, size);
     }
 
-    // gl.drawElements(gl.LINES, faces.length, gl.UNSIGNED_SHORT, 0);
+    window.requestAnimationFrame(() => drawMesh(mesh));
 }
 
 
@@ -137,9 +167,14 @@ document.querySelector("#fileControls input[type='file']")
         readFile(e)
             .then(parsePly)
             .then(([vertices, faces]) => {
+                if (animationFrame !== undefined) {
+                    window.cancelAnimationFrame(animationFrame);
+                }
                 let mesh = new Mesh(vertices, faces);
                 setProjection(mesh);
-                return drawShape(mesh);
+                setNormals(mesh);
+                setVertices(mesh);
+                drawMesh(mesh);
             })
             .catch(reason => {
                 document
