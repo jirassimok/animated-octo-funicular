@@ -1,10 +1,11 @@
 "use strict";
 
-import { readFile, parsePly } from "./filereaders.js";
-import { setupWebGL, setupProgram, enableVAO } from "./webgl-setup.js";
 import { Extent } from "./Extent.js";
+import { readFile, parsePly } from "./filereaders.js";
 import { Mesh } from "./Mesh.js";
 import { vec2, vec3, vec4 } from "./MV+.js";
+import { PausableTimer } from "./Timer.js";
+import { setupWebGL, setupProgram, enableVAO } from "./webgl-setup.js";
 
 import * as MV from "./MV+.js";
 
@@ -57,6 +58,25 @@ const shader = Object.freeze({
     projectionMatrix: gl.getUniformLocation(program, "projectionMatrix"),
 });
 
+/**
+ * Class tracking state of each animation (translation, rotation, and explosion)
+ */
+class AnimationState {
+    constructor(id) {
+        this.id = id; // The ID of the current animation frame
+
+        this.explosion = new PausableTimer();
+
+        this.translation = MV.mat4();
+        this.rotation = MV.mat4();
+    }
+
+    cancel() {
+        window.cancelAnimationFrame(this.id);
+    }
+}
+
+let animationState;
 
 
 function clearCanvas() {
@@ -133,7 +153,13 @@ function setVertices(mesh) {
 
 
 
-let scale = 0;
+/**
+ * Prepare webgl and the animations for a new mesh
+ */
+function animateMesh(mesh) {
+    animationState = new AnimationState(
+        window.requestAnimationFrame(() => drawMesh(mesh)));
+}
 
 /**
  * Draw and animate the shape specified by the arguments
@@ -143,12 +169,10 @@ function drawMesh(mesh) {
     let bounds = mesh.extent;
     let explosionScale = Math.max(bounds.width, bounds.height, bounds.depth) * 0.1;
 
-    if (scale >= 1) {
-        scale = -1;
-    }
-    scale += 0.025;
+    let t = 0.01 * animationState.explosion.timeelapsed(); // time in animation
+    let normalScale = (1 - Math.cos(t)) / 2; // Distance of movement along face normals
 
-    gl.uniform1f(shader.explosionScale, (1 - Math.cos(scale)) * explosionScale);
+    gl.uniform1f(shader.explosionScale, normalScale * explosionScale);
 
     gl.uniformMatrix4fv(shader.modelMatrix, false, MV.flatten(MV.mat4()));
 
@@ -158,23 +182,31 @@ function drawMesh(mesh) {
         gl.drawArrays(gl.LINE_LOOP, offset, size);
     }
 
-    window.requestAnimationFrame(() => drawMesh(mesh));
+    animationState.id = window.requestAnimationFrame(() => drawMesh(mesh));
 }
 
 
+window.addEventListener("keydown", e => {
+    switch (e.key) {
+    case "B": // fallthrough for shift
+    case "b":
+        animationState.explosion.toggle();
+        break;
+    }
+});
 document.querySelector("#fileControls input[type='file']")
     .addEventListener("change", e => {
         readFile(e)
             .then(parsePly)
             .then(([vertices, faces]) => {
-                if (animationFrame !== undefined) {
-                    window.cancelAnimationFrame(animationFrame);
+                if (animationState !== undefined) {
+                    animationState.cancel();
                 }
                 let mesh = new Mesh(vertices, faces);
                 setProjection(mesh);
                 setNormals(mesh);
                 setVertices(mesh);
-                drawMesh(mesh);
+                animateMesh(mesh);
             })
             .catch(reason => {
                 document
