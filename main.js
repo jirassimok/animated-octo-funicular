@@ -66,6 +66,30 @@ const shader = Object.freeze({
 //// Global animation state
 
 /**
+ * Global animation settings
+ *
+ * @property {number} explosion_scale   multiplier for explosion size
+ * @property {number} explosion_speed   percent of explosion per millisecond
+ * @property {number} rotation_speed    degrees of rotation per millisecond
+ * @property {number} translation_scale multiplier for translation distances
+ */
+const settings = Object.freeze({
+    explosion_scale: 0.1,
+    explosion_speed: 0.01,
+    rotation_speed: 360/1000,
+    translation_scale: 0.01,
+});
+
+/**
+ * Determine current explosion position as function of time
+ *
+ * This is applied after {@link settings.explosion_speed}
+ */
+function easeExplosion(t) {
+    return (1 - Math.cos(t)) / 2;
+}
+
+/**
  * Class tracking state of each animation (translation, rotation, and explosion)
  *
  * Explosion and rotation are represented as pausable timers that increase while
@@ -213,24 +237,19 @@ function animateMesh(mesh) {
 function drawMesh(mesh) {
     let bounds = mesh.extent;
 
-    let explosion_scale = 0.1,  // size of explosion as percentage of largest dimension
-        explosion_speed = 0.01, // percent of explosion per ms
-        rotation_speed = 360/1000, // rotation per ms
-        translation_scale = 0.01; // translation per ms as percent of dimension
-
-    let explosionSize = explosion_scale * Math.max(bounds.width, bounds.height, bounds.depth),
-        t_exp = explosion_speed * animationState.explosion.timeelapsed(), // time in animation
-        normalScale = (1 - Math.cos(t_exp)) / 2; // Distance of movement along face normals
+    let explosionSize = settings.explosion_scale * Math.max(bounds.width, bounds.height, bounds.depth),
+        t_exp = settings.explosion_speed * animationState.explosion.timeelapsed(),
+        normalScale = easeExplosion(t_exp); // Distance of movement along face normals
 
     gl.uniform1f(shader.explosionScale, normalScale * explosionSize);
 
 
     let t_xr = animationState.xrotation.timeelapsed(),
-        rotation = MV.rotateX(rotation_speed * t_xr);
+        rotation = MV.rotateX(settings.rotation_speed * t_xr);
 
-    let tr_x = translation_scale * bounds.width  * animationState.xtranslation.timeelapsed(),
-        tr_y = translation_scale * bounds.height * animationState.ytranslation.timeelapsed(),
-        tr_z = translation_scale * bounds.depth  * animationState.ztranslation.timeelapsed(),
+    let tr_x = settings.translation_scale * bounds.width  * animationState.xtranslation.timeelapsed(),
+        tr_y = settings.translation_scale * bounds.height * animationState.ytranslation.timeelapsed(),
+        tr_z = settings.translation_scale * bounds.depth  * animationState.ztranslation.timeelapsed(),
         translation = MV.translate(tr_x, tr_y, tr_z);
 
     let model = MV.mult(translation, rotation);
