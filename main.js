@@ -54,9 +54,13 @@ gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 // Set up the shader variables
 const shader = Object.freeze({
     position:         gl.getAttribLocation(program, "aPosition"),
+    faceNormal:       gl.getAttribLocation(program, "faceNormal"),
+
+    explosionScale:   gl.getUniformLocation(program, "explosionScale"),
+
     modelMatrix:      gl.getUniformLocation(program, "modelMatrix"),
     viewMatrix:       gl.getUniformLocation(program, "viewMatrix"),
-    projectionMatrix: gl.getUniformLocation(program, "projectionMatrix")
+    projectionMatrix: gl.getUniformLocation(program, "projectionMatrix"),
 });
 
 gl.vertexAttribPointer(shader.position, 3, gl.FLOAT, false, 0, 0);

@@ -8,13 +8,19 @@
 
         <script id="vertexShader" type="x-shader/x-vertex">
          attribute vec3 aPosition;
+         attribute vec3 faceNormal;
+
+         uniform float explosionScale;
+
          uniform mat4 projectionMatrix;
          uniform mat4 viewMatrix;
          uniform mat4 modelMatrix;
+
          varying vec4 fragColor;
 
          void main() {
-             gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1);
+             gl_Position = projectionMatrix * viewMatrix * modelMatrix *
+                           vec4((explosionScale * faceNormal + aPosition), 1);
              gl_PointSize = 4.0;
              fragColor = vec4(1, 1, 1, 1);
          }
