@@ -62,8 +62,8 @@ const shader = Object.freeze({
  * Class tracking state of each animation (translation, rotation, and explosion)
  */
 class AnimationState {
-    constructor(id) {
-        this.id = id; // The ID of the current animation frame
+    constructor() {
+        this.id = null; // The ID of the current animation frame
 
         this.explosion = new PausableTimer();
         this.xrotation = new PausableTimer();
@@ -159,8 +159,8 @@ function setVertices(mesh) {
  * Prepare webgl and the animations for a new mesh
  */
 function animateMesh(mesh) {
-    animationState = new AnimationState(
-        window.requestAnimationFrame(() => drawMesh(mesh)));
+    animationState = new AnimationState();
+    drawMesh(mesh);
 }
 
 /**
