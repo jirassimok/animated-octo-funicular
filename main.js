@@ -4,7 +4,7 @@ import { Extent } from "./Extent.js";
 import { readFile, parsePly } from "./filereaders.js";
 import { Mesh } from "./Mesh.js";
 import { vec2, vec3, vec4 } from "./MV+.js";
-import { PausableTimer } from "./Timer.js";
+import { PausableTimer, ReversableTimer } from "./Timer.js";
 import { setupWebGL, setupProgram, enableVAO } from "./webgl-setup.js";
 
 import * as MV from "./MV+.js";
@@ -68,7 +68,9 @@ class AnimationState {
         this.explosion = new PausableTimer();
         this.xrotation = new PausableTimer();
 
-        this.translation = MV.mat4();
+        this.xtranslation = new ReversableTimer();
+        this.ytranslation = new ReversableTimer();
+        this.ztranslation = new ReversableTimer();
     }
 
     cancel() {
@@ -167,18 +169,29 @@ function animateMesh(mesh) {
  */
 function drawMesh(mesh) {
     let bounds = mesh.extent;
-    let explosionScale = Math.max(bounds.width, bounds.height, bounds.depth) * 0.1;
 
-    let t_exp = 0.01 * animationState.explosion.timeelapsed(); // time in animation
-    let normalScale = (1 - Math.cos(t_exp)) / 2; // Distance of movement along face normals
+    let explosion_scale = 0.01, // percent of explosion per ms
+        rotation_speed = 360/1000, // rotation per ms
+        translation_scale = 0.001; // translation per ms as percent of dimension
 
-    gl.uniform1f(shader.explosionScale, normalScale * explosionScale);
+    let explosionSize = Math.max(bounds.width, bounds.height, bounds.depth) * 0.1,
+        t_exp = explosion_scale * animationState.explosion.timeelapsed(), // time in animation
+        normalScale = (1 - Math.cos(t_exp)) / 2; // Distance of movement along face normals
+
+    gl.uniform1f(shader.explosionScale, normalScale * explosionSize);
 
 
-    let t_xr = animationState.xrotation.timeelapsed();
-    let rotation = MV.rotateX(360/1000 * t_xr);
+    let t_xr = animationState.xrotation.timeelapsed(),
+        rotation = MV.rotateX(rotation_speed * t_xr);
 
-    gl.uniformMatrix4fv(shader.modelMatrix, false, MV.flatten(rotation));
+    let tr_x = translation_scale * bounds.width  * animationState.xtranslation.timeelapsed(),
+        tr_y = translation_scale * bounds.height * animationState.ytranslation.timeelapsed(),
+        tr_z = translation_scale * bounds.depth  * animationState.ztranslation.timeelapsed(),
+        translation = MV.translate(tr_x, tr_y, tr_z);
+
+    let model = MV.mult(translation, rotation);
+
+    gl.uniformMatrix4fv(shader.modelMatrix, false, MV.flatten(model));
 
     clearCanvas();
 
@@ -200,8 +213,33 @@ window.addEventListener("keydown", e => {
     case "r":
         animationState.xrotation.toggle();
         break;
+    case "X": // fallthrough for shift
+    case "x":
+        animationState.xtranslation.toggleForward();
+        break;
+    case "C": // fallthrough for shift
+    case "c":
+        animationState.xtranslation.toggleReverse();
+        break;
+    case "Y": // fallthrough for shift
+    case "y":
+        animationState.ytranslation.toggleForward();
+        break;
+    case "U": // fallthrough for shift
+    case "u":
+        animationState.ytranslation.toggleReverse();
+        break;
+    case "Z": // fallthrough for shift
+    case "z":
+        animationState.ztranslation.toggleForward();
+        break;
+    case "A": // fallthrough for shift
+    case "a":
+        animationState.ztranslation.toggleReverse();
+        break;
     }
 });
+
 document.querySelector("#fileControls input[type='file']")
     .addEventListener("change", e => {
         readFile(e)
