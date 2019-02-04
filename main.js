@@ -116,16 +116,16 @@ function drawShape(mesh) {
                   MV.flatten(mesh.vertices),
                   gl.STATIC_DRAW);
 
-    // gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
-    //               new Uint16Array(faces.flat(1)),
-    //               gl.STATIC_DRAW);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
+                  new Uint16Array(mesh.faces.flat(1)),
+                  gl.STATIC_DRAW);
 
     gl.uniformMatrix4fv(shader.modelMatrix, false, MV.flatten(MV.mat4()));
 
     clearCanvas();
 
     for (let [size, offset] of mesh.faceoffsets) {
-        gl.drawArrays(gl.LINE_LOOP, offset, size);
+        gl.drawElements(gl.LINE_LOOP, size, gl.UNSIGNED_SHORT, offset * 2);
     }
 
     // gl.drawElements(gl.LINES, faces.length, gl.UNSIGNED_SHORT, 0);
