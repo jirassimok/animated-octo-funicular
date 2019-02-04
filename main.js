@@ -63,6 +63,26 @@ const shader = Object.freeze({
 
 /**
  * Class tracking state of each animation (translation, rotation, and explosion)
+ *
+ * Explosion and rotation are represented as pausable timers that increase while
+ * the animations are running.
+ *
+ * The translations are represented as bi-directional timers that increase for
+ * positive motion and decrease for negative motion.
+ *
+ * The animations' effects are determined by functions of the timers' values in
+ * {@link drawMesh}.
+ *
+ * @property {PausableTimer} explosion time spent in explosion/pulse animation
+ *
+ * @property {PausableTimer} xrotation time spent rotating around the X axis
+ *
+ * @property {ReversableTimer} xtranslation difference between time spent moving
+ *                                          in positive and negative X direction
+ * @property {ReversableTimer} ytranslation difference between time spent moving
+ *                                          in positive and negative Y direction
+ * @property {ReversableTimer} ztranslation difference between time spent moving
+ *                                          in positive and negative Z direction
  */
 class AnimationState {
     constructor() {
