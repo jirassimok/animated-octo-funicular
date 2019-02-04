@@ -29,11 +29,6 @@ if (gl === null) {
     throw new Error("Failed to set up WebGL");
 }
 
-const vao = enableVAO(gl);
-if (vao == null) {
-    throw new Error("Failed to activate VAO extension");
-}
-
 const program = setupProgram(gl,
     document.querySelector("#vertexShader").text,
     document.querySelector("#fragmentShader").text);
