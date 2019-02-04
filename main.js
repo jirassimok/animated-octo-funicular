@@ -1,7 +1,7 @@
 "use strict";
 
 import { readFile, parsePly } from "./filereaders.js";
-import { setupWebGL, setupProgram } from "./webgl-setup.js";
+import { setupWebGL, setupProgram, enableVAO } from "./webgl-setup.js";
 import { Extent } from "./Extent.js";
 import { Mesh } from "./Mesh.js";
 import { vec2, vec3, vec4 } from "./MV+.js";
@@ -27,6 +27,11 @@ const ASPECT_RATIO = canvas.width / canvas.height;
 const gl = setupWebGL(canvas);
 if (gl === null) {
     throw new Error("Failed to set up WebGL");
+}
+
+const vao = enableVAO(gl);
+if (vao == null) {
+    throw new Error("Failed to activate VAO extension");
 }
 
 const program = setupProgram(gl,

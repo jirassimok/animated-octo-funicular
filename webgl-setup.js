@@ -67,14 +67,21 @@ export function setupWebGL(canvas) {
         return null;
     }
 
-    // Enable Vertex Array Object extension
+    return gl;
+}
+
+/**
+ * Activate the vertex array object extension
+ */
+export function enableVAO(gl) {
     let vao = gl.getExtension("OES_vertex_array_object");
+
     if (vao === null) {
         showError(VAOError);
         return null;
     }
 
-    return gl;
+    return vao;
 }
 
 /**
