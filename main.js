@@ -66,9 +66,9 @@ class AnimationState {
         this.id = id; // The ID of the current animation frame
 
         this.explosion = new PausableTimer();
+        this.xrotation = new PausableTimer();
 
         this.translation = MV.mat4();
-        this.rotation = MV.mat4();
     }
 
     cancel() {
@@ -169,12 +169,16 @@ function drawMesh(mesh) {
     let bounds = mesh.extent;
     let explosionScale = Math.max(bounds.width, bounds.height, bounds.depth) * 0.1;
 
-    let t = 0.01 * animationState.explosion.timeelapsed(); // time in animation
-    let normalScale = (1 - Math.cos(t)) / 2; // Distance of movement along face normals
+    let t_exp = 0.01 * animationState.explosion.timeelapsed(); // time in animation
+    let normalScale = (1 - Math.cos(t_exp)) / 2; // Distance of movement along face normals
 
     gl.uniform1f(shader.explosionScale, normalScale * explosionScale);
 
-    gl.uniformMatrix4fv(shader.modelMatrix, false, MV.flatten(MV.mat4()));
+
+    let t_xr = animationState.xrotation.timeelapsed();
+    let rotation = MV.rotateX(360/1000 * t_xr);
+
+    gl.uniformMatrix4fv(shader.modelMatrix, false, MV.flatten(rotation));
 
     clearCanvas();
 
@@ -191,6 +195,10 @@ window.addEventListener("keydown", e => {
     case "B": // fallthrough for shift
     case "b":
         animationState.explosion.toggle();
+        break;
+    case "R": // fallthrough for shift
+    case "r":
+        animationState.xrotation.toggle();
         break;
     }
 });
