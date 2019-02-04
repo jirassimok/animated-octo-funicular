@@ -9,10 +9,11 @@ import { setupWebGL, setupProgram, enableVAO } from "./webgl-setup.js";
 
 import * as MV from "./MV+.js";
 
+
+//// Prepare the canvas
+
 const MIN_CANVAS_HEIGHT = 200;
 const MIN_CANVAS_WIDTH  = 200;
-
-//// Setup WebGL and prepare for input
 
 const canvas = document.querySelector("#webglCanvas");
 
@@ -24,6 +25,8 @@ if (canvas.width < MIN_CANVAS_WIDTH) canvas.width = MIN_CANVAS_WIDTH;
 
 const ASPECT_RATIO = canvas.width / canvas.height;
 
+
+//// Set up WebGL, the program, buffers, and shader variables
 
 const gl = setupWebGL(canvas);
 if (gl === null) {
@@ -41,10 +44,9 @@ gl.useProgram(program);
 
 
 const buffers = Object.freeze({
-    position: gl.createBuffer(),
-    normal: gl.createBuffer(),
+    position: gl.createBuffer(), // vertices
+    normal: gl.createBuffer(),   // normal vectors
 });
-
 
 // Set up the shader variables
 const shader = Object.freeze({
@@ -57,6 +59,7 @@ const shader = Object.freeze({
     viewMatrix:       gl.getUniformLocation(program, "viewMatrix"),
     projectionMatrix: gl.getUniformLocation(program, "projectionMatrix"),
 });
+
 
 /**
  * Class tracking state of each animation (translation, rotation, and explosion)
@@ -90,7 +93,9 @@ class AnimationState {
     }
 }
 
-let animationState;
+// Timers for active and paused animation on current mesh
+let animationState = new AnimationState();
+
 
 
 function clearCanvas() {
