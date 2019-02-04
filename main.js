@@ -98,6 +98,10 @@ function setProjection(mesh) {
 
 	var viewMatrix = MV.lookAt(eye, at, up);
 
+    // Add margins around the mesh
+    var margins = MV.scalem(0.9, 0.9, 0.9);
+    projectionMatrix = MV.mult(margins, projectionMatrix);
+
     gl.uniformMatrix4fv(shader.projectionMatrix,
                         false,
                         MV.flatten(projectionMatrix));
