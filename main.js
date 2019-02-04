@@ -297,3 +297,5 @@ document.querySelector("#fileControls input[type='file']")
                 throw reason;
             });
     });
+
+clearCanvas();
