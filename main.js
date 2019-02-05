@@ -207,8 +207,8 @@ class View {
     }
 
     matrix() {
-        let xr = this.xrotation.timeelapsed() * settings.camera_speed;
-        let yr = this.yrotation.timeelapsed() * settings.camera_speed;
+        let xr = this.xrotation.timeElapsed() * settings.camera_speed;
+        let yr = this.yrotation.timeElapsed() * settings.camera_speed;
         return MV.mult(this._matrix,
                        this.unsetorigin,
                        MV.rotateX(xr),
@@ -314,18 +314,18 @@ function drawMesh(mesh) {
     let bounds = mesh.extent;
 
     let explosionSize = settings.explosion_scale * Math.max(bounds.width, bounds.height, bounds.depth),
-        t_exp = settings.explosion_speed * animationState.explosion.timeelapsed(),
+        t_exp = settings.explosion_speed * animationState.explosion.timeElapsed(),
         normalScale = easeExplosion(t_exp); // Distance of movement along face normals
 
     gl.uniform1f(shader.explosionScale, normalScale * explosionSize);
 
 
-    let t_xr = animationState.xrotation.timeelapsed(),
+    let t_xr = animationState.xrotation.timeElapsed(),
         rotation = MV.rotateX(settings.rotation_speed * t_xr);
 
-    let tr_x = settings.translation_scale * bounds.width  * animationState.xtranslation.timeelapsed(),
-        tr_y = settings.translation_scale * bounds.height * animationState.ytranslation.timeelapsed(),
-        tr_z = settings.translation_scale * bounds.depth  * animationState.ztranslation.timeelapsed(),
+    let tr_x = settings.translation_scale * bounds.width  * animationState.xtranslation.timeElapsed(),
+        tr_y = settings.translation_scale * bounds.height * animationState.ytranslation.timeElapsed(),
+        tr_z = settings.translation_scale * bounds.depth  * animationState.ztranslation.timeElapsed(),
         translation = MV.translate(tr_x, tr_y, tr_z);
 
     let model = MV.mult(translation, rotation);

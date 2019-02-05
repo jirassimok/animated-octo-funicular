@@ -9,14 +9,14 @@ export class PausableTimer {
     }
 
     /** @returns total time active, in milliseconds */
-    timeelapsed() {
+    timeElapsed() {
         return this._time + (this.isrunning
-                             ? this.timesincestart()
+                             ? this.timeSinceStart()
                              : 0);
     }
 
     /** @returns time since the timer was last started */
-    timesincestart() {
+    timeSinceStart() {
         return window.performance.now() - this.laststarted;
     }
 
@@ -45,7 +45,7 @@ export class PausableTimer {
         if (this.isrunning) {
             this.isrunning = false;
             // Add time since last start to total time
-            this._time += this.timesincestart();
+            this._time += this.timeSinceStart();
             this.laststarted = null;
         }
     }
@@ -60,7 +60,7 @@ export class ReversableTimer extends PausableTimer {
         this.reversed = false;
     }
 
-    timesincestart() {
+    timeSinceStart() {
         return (1 - 2 * this.reversed) *
             (window.performance.now() - this.laststarted);
     }
