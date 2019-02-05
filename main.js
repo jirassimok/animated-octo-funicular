@@ -383,6 +383,28 @@ window.addEventListener("keyup", e => {
     }
 });
 
+/**
+ * Actions taken when a translation key is pressed
+ *
+ * @param {KeyboardEvent} event The triggering keydown event
+ * @param {String} animation The transformation, a property of {@link AnimationState}
+ * @param {'Forward'|'Reverse'} direction The direction of the translation
+ *
+ * {@code direction} must be exactly "Forward" or "Reverse"
+ */
+function translationControl(event, animation, direction) {
+    if (direction !== "Forward" && direction !== "Reverse") {
+        throw new Error("Program error: invalid translation direction");
+    }
+    if (!animationState.hasOwnProperty(animation)) {
+        throw new Error("Program error: invalid animation property");
+    }
+
+    animationState[animation][`toggle${direction}`]();
+    Key.toggle(event.key);
+    event.preventDefault();
+}
+
 window.addEventListener("keydown", e => {
     switch (e.key) {
     case "Q": // fallthrough for shift
@@ -433,41 +455,30 @@ window.addEventListener("keydown", e => {
         Key.toggle("R");
         // default event allowed for reloading
         break;
+
     case "X": // fallthrough for shift
     case "x":
-        animationState.xtranslation.toggleForward();
-        Key.toggle("X");
-        e.preventDefault();
+        translationControl(e, "xtranslation", "Forward");
         break;
     case "C": // fallthrough for shift
     case "c":
-        animationState.xtranslation.toggleReverse();
-        Key.toggle("C");
-        e.preventDefault();
+        translationControl(e, "xtranslation", "Reverse");
         break;
     case "Y": // fallthrough for shift
     case "y":
-        animationState.ytranslation.toggleForward();
-        Key.toggle("Y");
-        e.preventDefault();
+        translationControl(e, "ytranslation", "Forward");
         break;
     case "U": // fallthrough for shift
     case "u":
-        animationState.ytranslation.toggleReverse();
-        Key.toggle("U");
-        e.preventDefault();
+        translationControl(e, "ytranslation", "Reverse");
         break;
     case "Z": // fallthrough for shift
     case "z":
-        animationState.ztranslation.toggleForward();
-        Key.toggle("Z");
-        e.preventDefault();
+        translationControl(e, "ztranslation", "Forward");
         break;
     case "A": // fallthrough for shift
     case "a":
-        animationState.ztranslation.toggleReverse();
-        Key.toggle("A");
-        e.preventDefault();
+        translationControl(e, "ztranslation", "Reverse");
         break;
     }
 });
