@@ -77,6 +77,18 @@ export class ReversableTimer extends PausableTimer {
         super.start();
     }
 
+    stopReverse() {
+        if (this.reversed) {
+            super.stop();
+        }
+    }
+
+    stopForward() {
+        if (!this.reversed) {
+            super.stop();
+        }
+    }
+
     /**
      * If running forward, stop. Otherwise, run forward.
      */
