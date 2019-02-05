@@ -286,7 +286,14 @@ export function subtract(u, v)
 
 //----------------------------------------------------------------------------
 
-export function mult(u, v)
+export function mult(...m) {
+    if (m.length === 0) {
+        throw "mult(): trying to multiply no matrices";
+    }
+    return m.reduce(_mult);
+}
+
+function _mult(u, v)
 {
     let result = [];
 
@@ -447,11 +454,11 @@ export function lookAt(eye, at, up)
     }
 
     if (!Array.isArray(at) || at.length !== 3) {
-        throw "lookAt(): first parameter [at] must be an a vec3";
+        throw "lookAt(): second parameter [at] must be an a vec3";
     }
 
     if (!Array.isArray(up) || up.length !== 3) {
-        throw "lookAt(): first parameter [up] must be an a vec3";
+        throw "lookAt(): third parameter [up] must be an a vec3";
     }
 
     if (equal(eye, at)) {
