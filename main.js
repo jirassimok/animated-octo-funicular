@@ -7,6 +7,7 @@ import { vec2, vec3, vec4 } from "./MV+.js";
 import { PausableTimer, ReversableTimer } from "./Timer.js";
 import { setupWebGL, setupProgram, enableVAO } from "./webgl-setup.js";
 
+import * as Key from "./KeyboardUI.js";
 import * as MV from "./MV+.js";
 
 
@@ -345,22 +346,38 @@ function drawMesh(mesh) {
 }
 
 
+
+//// Control initialization
+
+
 window.addEventListener("keyup", e => {
     switch (e.key) {
+    case "Q": // fallthrough for shift
+    case "q":
+        Key.deactivate("Q");
+        break;
+    case "F": // fallthrough for shift
+    case "f":
+        Key.deactivate("F");
+        break;
     case "ArrowUp":
         view.xrotation.stopForward();
+        Key.deactivate("ArrowUp");
         e.preventDefault();
         break;
     case "ArrowDown":
         view.xrotation.stopReverse();
+        Key.deactivate("ArrowDown");
         e.preventDefault();
         break;
     case "ArrowRight":
         view.yrotation.stopReverse();
+        Key.deactivate("ArrowRight");
         e.preventDefault();
         break;
     case "ArrowLeft":
         view.yrotation.stopForward();
+        Key.deactivate("ArrowLeft");
         e.preventDefault();
         break;
     }
@@ -372,68 +389,84 @@ window.addEventListener("keydown", e => {
     case "q":
         animationState = new AnimationState();
         view.reset();
+        Key.deactivateAll();
+        Key.activate("Q");
         e.preventDefault();
         break;
     case "F": // fallthrough for shift
     case "f":
         animationState.stopAnimations();
+        Key.deactivateClass("toggle");
+        Key.activate("F");
         e.preventDefault();
         break;
     case "ArrowUp":
         view.xrotation.startForward();
+        Key.activate("ArrowUp", "ArrowDown");
         e.preventDefault();
         break;
     case "ArrowDown":
         view.xrotation.startReverse();
+        Key.activate("ArrowDown", "ArrowUp");
         e.preventDefault();
         break;
     case "ArrowRight":
         view.yrotation.startReverse();
+        Key.activate("ArrowRight", "ArrowLeft");
         e.preventDefault();
         break;
     case "ArrowLeft":
         view.yrotation.startForward();
+        Key.activate("ArrowLeft", "ArrowRight");
         e.preventDefault();
         break;
 
     case "B": // fallthrough for shift
     case "b":
         animationState.explosion.toggle();
+        Key.toggle("B");
         e.preventDefault();
         break;
     case "R": // fallthrough for shift
     case "r":
         animationState.xrotation.toggle();
+        Key.toggle("R");
         // default event allowed for reloading
         break;
     case "X": // fallthrough for shift
     case "x":
         animationState.xtranslation.toggleForward();
+        Key.toggle("X");
         e.preventDefault();
         break;
     case "C": // fallthrough for shift
     case "c":
         animationState.xtranslation.toggleReverse();
+        Key.toggle("C");
         e.preventDefault();
         break;
     case "Y": // fallthrough for shift
     case "y":
         animationState.ytranslation.toggleForward();
+        Key.toggle("Y");
         e.preventDefault();
         break;
     case "U": // fallthrough for shift
     case "u":
         animationState.ytranslation.toggleReverse();
+        Key.toggle("U");
         e.preventDefault();
         break;
     case "Z": // fallthrough for shift
     case "z":
         animationState.ztranslation.toggleForward();
+        Key.toggle("Z");
         e.preventDefault();
         break;
     case "A": // fallthrough for shift
     case "a":
         animationState.ztranslation.toggleReverse();
+        Key.toggle("A");
         e.preventDefault();
         break;
     }
