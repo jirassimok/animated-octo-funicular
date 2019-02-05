@@ -73,12 +73,19 @@ const shader = Object.freeze({
  * @property {number} rotation_speed    degrees of rotation per millisecond
  * @property {number} translation_scale multiplier for translation distances
  */
-const settings = Object.freeze({
+const settings = Object.seal({
     explosion_scale: 0.1,
     explosion_speed: 0.01,
     rotation_speed: 360/1000,
     translation_scale: 0.01,
 });
+
+function resetSettings() {
+    settings.explosion_scale = 0.1;
+    settings.explosion_speed = 0.01;
+    settings.rotation_speed = 360/1000;
+    settings.translation_scale = 0.01;
+}
 
 /**
  * Determine current explosion position as function of time
@@ -343,5 +350,41 @@ document.querySelector("#fileControls input[type='file']")
                 throw reason;
             });
     });
+
+
+
+//// Non-keyboard animation control setup
+
+
+
+/**
+ * Bind an event listener for a slider that sets a property of an object.
+ *
+ * Also binds the reset button to restore values to their original values (when
+ * this function was called), and sets the slider's current value to that value.
+ *
+ * @param {String} selector A selector string for the slider
+ * @param {Object} object   The object that should have a property set
+ * @param {String} property The name of the property to set
+ * @param {String} default asdf
+ */
+function bindSlider(selector, object, property) {
+    let defaultvalue = object[property],
+        slider = document.querySelector(selector);
+
+    slider.value = defaultvalue;
+
+    document.querySelector("button.reset") .addEventListener("click", e => {
+        object[property] = defaultvalue;
+        slider.value = defaultvalue;
+    });
+
+    slider.addEventListener("change", e => {
+        object[property] = e.target.value;
+    });
+}
+
+bindSlider(".speed-slider.explosion", settings, "explosion_speed");
+bindSlider(".speed-slider.x.rotation", settings, "rotation_speed");
 
 clearCanvas();

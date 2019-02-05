@@ -50,22 +50,26 @@
         </div>
 
         <table>
-            <tr><th>Key</th><th>Effect</th>
+            <tr><th>Key</th><th>Effect</th><th>Speed</th>
             </tr>
             <tr><td><code>Q</code></td>
-                <td>Reset</td>
+                <td>Reset mesh</td>
+                <td><button class="reset">Reset speed sliders</button></td>
             </tr>
             <tr><td><code>F</code></td>
                 <td>Stop all animations</td>
             </tr>
             <tr><td><code>B</code></td>
                 <td>Toggle explosion animation</td>
+                <td><input class="speed-slider explosion" type="range" min="0.001" max="0.02" step="0.001"></td>
             </tr>
             <tr><td><code>R</code></td>
                 <td>Toggle X-rotation</td>
+                <td><input class="speed-slider x rotation" type="range" min="0.04" max="1" step="0.04"></td>
             </tr>
             <tr><td><code>X</code></td>
                 <td>Move positive X</td>
+                <!-- <td><input class="speed-slider x translation" type="range" min=""> -->
             </tr>
             <tr><td><code>C</code></td>
                 <td>Move negative X</td>
