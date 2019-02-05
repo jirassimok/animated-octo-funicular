@@ -72,12 +72,14 @@ const shader = Object.freeze({
  * @property {number} explosion_speed   percent of explosion per millisecond
  * @property {number} rotation_speed    degrees of rotation per millisecond
  * @property {number} translation_scale multiplier for translation distances
+ * @property {number} camera_speed      degress per millisecond
  */
 const settings = Object.seal({
     explosion_scale: 0.1,
     explosion_speed: 0.01,
     rotation_speed: 360/1000,
     translation_scale: 0.01,
+    camera_speed: 360/1000,
 });
 
 function resetSettings() {
@@ -85,6 +87,7 @@ function resetSettings() {
     settings.explosion_speed = 0.01;
     settings.rotation_speed = 360/1000;
     settings.translation_scale = 0.01;
+    settings.camera_speed = 360/1000;
 }
 
 /**
@@ -162,6 +165,70 @@ function clearCanvas() {
 }
 
 /**
+ * Create a frozen vec3 with an x, y, and z property to a vec3.
+ */
+function Point(x, y, z) {
+    let vec = vec3(x, y, z);
+    vec.x = x;
+    vec.y = y;
+    vec.z = z;
+    return Object.freeze(vec);
+}
+
+/**
+ * Class representing a camera looking at a point
+ */
+class View {
+    constructor(cx, cy, cz, distance) {
+        this.center = Point(cx, cy, cz);
+
+        this.distance = distance;
+
+        this.camera = Point(cx, cy, cz + distance);
+        let up = Point(0, 1, 0);
+
+        this.xrotation = new ReversableTimer();
+        this.yrotation = new ReversableTimer();
+
+        // View matrix
+        this._matrix = MV.lookAt(this.camera, this.center, up);
+
+        // Translation matrices to center at origin
+        this.unsetorigin = MV.translate(this.center);
+        this.setorigin = MV.translate(MV.negate(this.center));
+    }
+
+    /**
+     * Reset the global view
+     */
+    reset() {
+        view = new View(...this.center, this.distance);
+    }
+
+    matrix() {
+        let xr = this.xrotation.timeelapsed() * settings.camera_speed;
+        let yr = this.yrotation.timeelapsed() * settings.camera_speed;
+        return MV.mult(this._matrix,
+                       this.unsetorigin,
+                       MV.rotateX(xr),
+                       MV.rotateY(yr),
+                       this.setorigin);
+    }
+}
+
+
+/**
+ * State representing the camera's position and direction
+ */
+let view = new View(0, 0, 0, 0);
+
+function distance(p1, p2) {
+    return Math.sqrt((p1[0] - p2[0]) ** 2 +
+                     (p1[1] - p2[1]) ** 2 +
+                     (p1[2] - p2[2]) ** 2);
+}
+
+/**
  * Set up the projection and view matrices based on the mesh
  *
  * The mesh is viewed from distance equal to its depth (z-width), with a 10%
@@ -170,7 +237,7 @@ function clearCanvas() {
 function setProjection(mesh) {
     let bounds = mesh.extent;
 
-    let z = bounds.near + bounds.depth;
+    let viewDistance = bounds.near + bounds.depth;
 
     // y-FOV required to view entire bounding box from distance = depth
     let fovy = 2 * Math.atan(bounds.height / (2 * bounds.depth));
@@ -180,11 +247,12 @@ function setProjection(mesh) {
 
 	let eye = vec3(bounds.midpoint[0],
                    bounds.midpoint[1],
-                   bounds.near + bounds.depth),
+                   viewDistance),
 	    at = bounds.midpoint,
 	    up = vec3(0, 1, 0);
 
-	var viewMatrix = MV.lookAt(eye, at, up);
+    view = new View(...at, distance(eye, at));
+	var viewMatrix = view.matrix();
 
     // Add margins around the mesh
     var margins = MV.scalem(0.9, 0.9, 0.9);
@@ -263,6 +331,10 @@ function drawMesh(mesh) {
 
     gl.uniformMatrix4fv(shader.modelMatrix, false, MV.flatten(model));
 
+    gl.uniformMatrix4fv(shader.viewMatrix,
+                        false,
+                        MV.flatten(view.matrix()));
+
     clearCanvas();
 
     for (let [size, offset] of mesh.faceoffsets) {
@@ -273,16 +345,54 @@ function drawMesh(mesh) {
 }
 
 
+window.addEventListener("keyup", e => {
+    switch (e.key) {
+    case "ArrowUp":
+        view.xrotation.stopForward();
+        e.preventDefault();
+        break;
+    case "ArrowDown":
+        view.xrotation.stopReverse();
+        e.preventDefault();
+        break;
+    case "ArrowRight":
+        view.yrotation.stopReverse();
+        e.preventDefault();
+        break;
+    case "ArrowLeft":
+        view.yrotation.stopForward();
+        e.preventDefault();
+        break;
+    }
+});
+
 window.addEventListener("keydown", e => {
     switch (e.key) {
     case "Q": // fallthrough for shift
     case "q":
         animationState = new AnimationState();
+        view.reset();
         e.preventDefault();
         break;
     case "F": // fallthrough for shift
     case "f":
         animationState.stopAnimations();
+        e.preventDefault();
+        break;
+    case "ArrowUp":
+        view.xrotation.startForward();
+        e.preventDefault();
+        break;
+    case "ArrowDown":
+        view.xrotation.startReverse();
+        e.preventDefault();
+        break;
+    case "ArrowRight":
+        view.yrotation.startReverse();
+        e.preventDefault();
+        break;
+    case "ArrowLeft":
+        view.yrotation.startForward();
         e.preventDefault();
         break;
 
@@ -386,5 +496,6 @@ function bindSlider(selector, object, property) {
 
 bindSlider(".speed-slider.explosion", settings, "explosion_speed");
 bindSlider(".speed-slider.x.rotation", settings, "rotation_speed");
+bindSlider(".speed-slider.camera.rotation", settings, "camera_speed");
 
 clearCanvas();
