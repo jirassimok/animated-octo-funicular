@@ -351,31 +351,29 @@ function drawMesh(mesh) {
 
 
 window.addEventListener("keyup", e => {
-    switch (e.key) {
-    case "Q": // fallthrough for shift
-    case "q":
+    switch (e.key.toUpperCase()) {
+    case "Q":
         Key.deactivate("Q");
         break;
-    case "F": // fallthrough for shift
-    case "f":
+    case "F":
         Key.deactivate("F");
         break;
-    case "ArrowUp":
+    case "ARROWUP":
         view.xrotation.stopForward();
         Key.deactivate("ArrowUp");
         e.preventDefault();
         break;
-    case "ArrowDown":
+    case "ARROWDOWN":
         view.xrotation.stopReverse();
         Key.deactivate("ArrowDown");
         e.preventDefault();
         break;
-    case "ArrowRight":
+    case "ARROWRIGHT":
         view.yrotation.stopReverse();
         Key.deactivate("ArrowRight");
         e.preventDefault();
         break;
-    case "ArrowLeft":
+    case "ARROWLEFT":
         view.yrotation.stopForward();
         Key.deactivate("ArrowLeft");
         e.preventDefault();
@@ -423,74 +421,64 @@ function toggleControl(event, animation) {
 
 
 window.addEventListener("keydown", e => {
-    switch (e.key) {
-    case "Q": // fallthrough for shift
-    case "q":
+    switch (e.key.toUpperCase()) {
+    case "Q":
         animationState = new AnimationState();
         view.reset();
         Key.deactivateAll();
         Key.activate("Q");
         e.preventDefault();
         break;
-    case "F": // fallthrough for shift
-    case "f":
+    case "F":
         animationState.stopAnimations();
         Key.deactivateClass("toggle");
         Key.activate("F");
         e.preventDefault();
         break;
-    case "ArrowUp":
+    case "ARROWUP":
         view.xrotation.startForward();
         Key.activate("ArrowUp", "ArrowDown");
         e.preventDefault();
         break;
-    case "ArrowDown":
+    case "ARROWDOWN":
         view.xrotation.startReverse();
         Key.activate("ArrowDown", "ArrowUp");
         e.preventDefault();
         break;
-    case "ArrowRight":
+    case "ARROWRIGHT":
         view.yrotation.startReverse();
         Key.activate("ArrowRight", "ArrowLeft");
         e.preventDefault();
         break;
-    case "ArrowLeft":
+    case "ARROWLEFT":
         view.yrotation.startForward();
         Key.activate("ArrowLeft", "ArrowRight");
         e.preventDefault();
         break;
 
-    case "B": // fallthrough for shift
-    case "b":
+    case "B":
         toggleControl(event, "explosion");
         break;
-    case "R": // fallthrough for shift
-    case "r":
+    case "R":
         toggleControl(event, "xrotation");
         break;
 
-    case "X": // fallthrough for shift
-    case "x":
+    case "X":
         translationControl(e, "xtranslation", "Forward");
         break;
-    case "C": // fallthrough for shift
-    case "c":
+    case "C":
         translationControl(e, "xtranslation", "Reverse");
         break;
-    case "Y": // fallthrough for shift
-    case "y":
+    case "Y":
         translationControl(e, "ytranslation", "Forward");
         break;
-    case "U": // fallthrough for shift
-    case "u":
+    case "U":
         translationControl(e, "ytranslation", "Reverse");
         break;
-    case "Z": // fallthrough for shift
-    case "z":
+    case "Z":
         translationControl(e, "ztranslation", "Forward");
         break;
-    case "A": // fallthrough for shift
-    case "a":
+    case "A":
         translationControl(e, "ztranslation", "Reverse");
         break;
     }
