@@ -421,6 +421,10 @@ function toggleControl(event, animation) {
 
 
 window.addEventListener("keydown", e => {
+    if (e.ctrlKey || e.altKey || e.metaKey) {
+        return;
+    }
+
     switch (e.key.toUpperCase()) {
     case "Q":
         animationState = new AnimationState();
