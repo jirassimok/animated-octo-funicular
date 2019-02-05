@@ -49,9 +49,16 @@
             <code class="error-message"></code>
         </div>
 
-        <table>
-            <tr><th>Key</th><th>Effect</th><th>Speed</th>
-            </tr>
+        <table class="controls">
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Effect</th>
+                    <th>Speed</th>
+                </tr>
+            </thead>
+            <tbody>
+
             <tr><td><kbd class="key q">Q</kbd></td>
                 <td>Reset mesh</td>
                 <td><button class="reset">Reset speed sliders</button></td>
@@ -90,12 +97,18 @@
                 <td>
                     <kbd class="key arrowup">&uarr;</kbd>
                     <kbd class="key arrowdown">&darr;</kbd>
+                </td>
+                <td>Rotate mesh around its original X-axis</td>
+                <td rowspan="2"><input class="speed-slider camera rotation" type="range" min="0.04" max="1" step="0.04"></td>
+            </tr>
+            <tr>
+                <td>
                     <kbd class="key arrowleft">&larr;</kbd>
                     <kbd class="key arrowright">&rarr;</kbd>
                 </td>
-                <td>Rotate camera around the<br> mesh's original position</td>
-                <td><input class="speed-slider camera rotation" type="range" min="0.04" max="1" step="0.04"></td>
+                <td>Rotate mesh around its original Y axis</td>
             </tr>
+            </tbody>
         </table>
 
         <script src="main.js"></script>
