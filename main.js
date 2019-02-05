@@ -405,6 +405,23 @@ function translationControl(event, animation, direction) {
     event.preventDefault();
 }
 
+/**
+ * Actions taken when a toggle-able control key is pressed
+ *
+ * @param {KeyboardEvent} event The triggering keydown event
+ * @param {String} animation The animation, a property of {@link AnimationState}
+ */
+function toggleControl(event, animation) {
+    if (!animationState.hasOwnProperty(animation)) {
+        throw new Error("Program error: invalid animation property");
+    }
+
+    animationState[animation].toggle();
+    Key.toggle(event.key);
+    event.preventDefault();
+}
+
+
 window.addEventListener("keydown", e => {
     switch (e.key) {
     case "Q": // fallthrough for shift
@@ -445,15 +462,11 @@ window.addEventListener("keydown", e => {
 
     case "B": // fallthrough for shift
     case "b":
-        animationState.explosion.toggle();
-        Key.toggle("B");
-        e.preventDefault();
+        toggleControl(event, "explosion");
         break;
     case "R": // fallthrough for shift
     case "r":
-        animationState.xrotation.toggle();
-        Key.toggle("R");
-        // default event allowed for reloading
+        toggleControl(event, "xrotation");
         break;
 
     case "X": // fallthrough for shift
