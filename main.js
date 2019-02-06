@@ -72,20 +72,24 @@ const shader = Object.freeze({
  * @property {number} explosion_scale   multiplier for explosion size
  * @property {number} explosion_speed   percent of explosion per millisecond
  * @property {number} rotation_speed    degrees of rotation per millisecond
- * @property {number} translation_scale multiplier for translation distances
+ * @property {number} x_speed           multiplier for movement along X-axis
+ * @property {number} y_speed           multiplier for movement along Y-axis
+ * @property {number} z_speed           multiplier for movement along Z axis
  */
 const settings = Object.seal({
     explosion_scale: 0.1,
     explosion_speed: 0.01,
     rotation_speed: 360/1000,
-    translation_scale: 0.01,
+    x_speed: 0.01,
+    y_speed: 0.01,
+    z_speed: 0.01
 });
 
 function resetSettings() {
     settings.explosion_scale = 0.1;
     settings.explosion_speed = 0.01;
     settings.rotation_speed = 360/1000;
-    settings.translation_scale = 0.01;
+    settings.x_speed = settings.y_speed = settings.z_speed = 0.01;
 }
 
 /**
@@ -127,15 +131,19 @@ class AnimationState {
         this.explosion = new AnimationTracker(() => settings.explosion_speed);
         this.xrotation = new AnimationTracker(() => settings.rotation_speed);
 
-        this.xtranslation = new ReversableTimer();
-        this.ytranslation = new ReversableTimer();
-        this.ztranslation = new ReversableTimer();
+        this.xtranslation = new AnimationTracker(() => settings.x_speed);
+        this.ytranslation = new AnimationTracker(() => settings.y_speed);
+        this.ztranslation = new AnimationTracker(() => settings.z_speed);
 
         this.animations = [this.explosion,
                            this.xrotation,
                            this.xtranslation,
                            this.ytranslation,
                            this.ztranslation];
+
+        this.translations = [this.xtranslation,
+                             this.ytranslation,
+                             this.ztranslation];
     }
 
     cancel() {
@@ -146,6 +154,10 @@ class AnimationState {
         for (let a of this.animations) {
             a.stop();
         }
+    }
+
+    stopTranslations() {
+        this.translations.forEach(a => a.stop());
     }
 }
 
@@ -259,9 +271,9 @@ function drawMesh(mesh) {
 
     let rotation = MV.rotateX(animationState.xrotation.position);
 
-    let tr_x = settings.translation_scale * bounds.width  * animationState.xtranslation.timeElapsed(),
-        tr_y = settings.translation_scale * bounds.height * animationState.ytranslation.timeElapsed(),
-        tr_z = settings.translation_scale * bounds.depth  * animationState.ztranslation.timeElapsed(),
+    let tr_x = bounds.width  * animationState.xtranslation.position,
+        tr_y = bounds.height * animationState.ytranslation.position,
+        tr_z = bounds.depth  * animationState.ztranslation.position,
         translation = MV.translate(tr_x, tr_y, tr_z);
 
     let model = MV.mult(translation, rotation);
@@ -297,20 +309,28 @@ window.addEventListener("keyup", e => {
  * Actions taken when a translation key is pressed
  *
  * @param {KeyboardEvent} event The triggering keydown event
- * @param {String} animation The transformation, a property of {@link AnimationState}
- * @param {'Forward'|'Reverse'} direction The direction of the translation
- *
- * {@code direction} must be exactly "Forward" or "Reverse"
+ * @param {'x'|'y'|'z'} axis The axis to rotate along, "x", "y", or "z".
+ * @param {number} scale A multiplier for the speed; should be +1 or -1
  */
-function translationControl(event, animation, direction) {
-    if (direction !== "Forward" && direction !== "Reverse") {
-        throw new Error("Program error: invalid translation direction");
-    }
-    if (!animationState.hasOwnProperty(animation)) {
-        throw new Error("Program error: invalid animation property");
+function translationControl(event, axis, scale) {
+    axis = axis.toLowerCase();
+
+    let animation = animationState[`${axis}translation`];
+
+    if (animation === undefined) {
+        throw new Error("Program error: invalid axis given or missing animation or speed setting");
     }
 
-    animationState[animation][`toggle${direction}`]();
+    let alreadyRunning = animation.isrunning();
+
+    animationState.stopTranslations();
+
+    // assumes both scales are +/- 1, which is true in this program
+    if (!(alreadyRunning && animation.scale === scale)) {
+        // Start animation unless it was already running in the right diretion
+        animation.scale = scale;
+        animation.start();
+    }
     Key.toggle(event.key);
     event.preventDefault();
 }
@@ -359,22 +379,22 @@ window.addEventListener("keydown", e => {
         break;
 
     case "X":
-        translationControl(e, "xtranslation", "Forward");
+        translationControl(e, "x", 1);
         break;
     case "C":
-        translationControl(e, "xtranslation", "Reverse");
+        translationControl(e, "x", -1);
         break;
     case "Y":
-        translationControl(e, "ytranslation", "Forward");
+        translationControl(e, "y", 1);
         break;
     case "U":
-        translationControl(e, "ytranslation", "Reverse");
+        translationControl(e, "y", -1);
         break;
     case "Z":
-        translationControl(e, "ztranslation", "Forward");
+        translationControl(e, "z", 1);
         break;
     case "A":
-        translationControl(e, "ztranslation", "Reverse");
+        translationControl(e, "z", -1);
         break;
     }
 });
@@ -436,5 +456,8 @@ function bindSlider(selector, object, property) {
 
 bindSlider(".speed-slider.explosion", settings, "explosion_speed");
 bindSlider(".speed-slider.x.rotation", settings, "rotation_speed");
+bindSlider(".speed-slider.x.translation", settings, "x_speed");
+bindSlider(".speed-slider.y.translation", settings, "y_speed");
+bindSlider(".speed-slider.z.translation", settings, "z_speed");
 
 clearCanvas();

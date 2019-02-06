@@ -121,10 +121,12 @@ export class ReversableTimer extends PausableTimer {
  *                          units per millisecond
  * @property {?number} lastupdated The time the animation was last updated, or
  *                                 null if the animation is not running.
+ * @property {number} scale A multiplier for the speed, useful for reversing (-1)
  */
 export class AnimationTracker {
     constructor(speed = () => 1) {
         this.speed = speed;
+        this.scale = 1;
         this.lastupdated = null;
         this._position = 0;
     }
@@ -137,9 +139,15 @@ export class AnimationTracker {
     /** Update the animation's position by its speed */
     updatePosition() {
         if (this.lastupdated) {
-            this._position += this.speed() * this.timeSinceUpdate();
+            this._position += this.scale * this.speed() * this.timeSinceUpdate();
             this.lastupdated = window.performance.now();
         }
+    }
+
+    // Main public API
+
+    isrunning() {
+        return this.lastupdated !== null;
     }
 
     /**
@@ -171,6 +179,6 @@ export class AnimationTracker {
         else {
             this.start();
         }
-        return (this.lastupdated !== null);
+        return this.lastupdated !== null;
     }
 }
