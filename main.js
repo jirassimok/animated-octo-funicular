@@ -151,9 +151,7 @@ class AnimationState {
     }
 
     stopAnimations() {
-        for (let a of this.animations) {
-            a.stop();
-        }
+        this.animations.forEach(a => a.stop());
     }
 
     stopTranslations() {
