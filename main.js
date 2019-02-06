@@ -4,7 +4,7 @@ import { Extent } from "./Extent.js";
 import { readFile, parsePly } from "./filereaders.js";
 import { Mesh } from "./Mesh.js";
 import { vec2, vec3, vec4 } from "./MV+.js";
-import { PausableTimer, ReversableTimer } from "./Timer.js";
+import { PausableTimer, ReversableTimer, AnimationTracker } from "./Timer.js";
 import { setupWebGL, setupProgram, enableVAO } from "./webgl-setup.js";
 
 import * as Key from "./KeyboardUI.js";
@@ -111,7 +111,7 @@ function easeExplosion(t) {
  *
  * @property {PausableTimer} explosion time spent in explosion/pulse animation
  *
- * @property {PausableTimer} xrotation time spent rotating around the X axis
+ * @property {AnimationTracer} xrotation State of rotation around X-axis
  *
  * @property {ReversableTimer} xtranslation difference between time spent moving
  *                                          in positive and negative X direction
@@ -124,8 +124,8 @@ class AnimationState {
     constructor() {
         this.id = null; // The ID of the current animation frame
 
-        this.explosion = new PausableTimer();
-        this.xrotation = new PausableTimer();
+        this.explosion = new AnimationTracker(() => settings.explosion_speed);
+        this.xrotation = new AnimationTracker(() => settings.rotation_speed);
 
         this.xtranslation = new ReversableTimer();
         this.ytranslation = new ReversableTimer();
@@ -252,14 +252,12 @@ function drawMesh(mesh) {
     let bounds = mesh.extent;
 
     let explosionSize = settings.explosion_scale * Math.max(bounds.width, bounds.height, bounds.depth),
-        t_exp = settings.explosion_speed * animationState.explosion.timeElapsed(),
+        t_exp = animationState.explosion.position,
         normalScale = easeExplosion(t_exp); // Distance of movement along face normals
 
     gl.uniform1f(shader.explosionScale, normalScale * explosionSize);
 
-
-    let t_xr = animationState.xrotation.timeElapsed(),
-        rotation = MV.rotateX(settings.rotation_speed * t_xr);
+    let rotation = MV.rotateX(animationState.xrotation.position);
 
     let tr_x = settings.translation_scale * bounds.width  * animationState.xtranslation.timeElapsed(),
         tr_y = settings.translation_scale * bounds.height * animationState.ytranslation.timeElapsed(),
@@ -431,7 +429,7 @@ function bindSlider(selector, object, property) {
         slider.value = defaultvalue;
     });
 
-    slider.addEventListener("change", e => {
+    slider.addEventListener("input", e => {
         object[property] = e.target.value;
     });
 }

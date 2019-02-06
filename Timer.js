@@ -113,3 +113,64 @@ export class ReversableTimer extends PausableTimer {
         }
     }
 }
+
+/**
+ * Timer for animations; tracks position in the animation rather than time
+ *
+ * @property {number} speed A function that will return the animation's speed in
+ *                          units per millisecond
+ * @property {?number} lastupdated The time the animation was last updated, or
+ *                                 null if the animation is not running.
+ */
+export class AnimationTracker {
+    constructor(speed = () => 1) {
+        this.speed = speed;
+        this.lastupdated = null;
+        this._position = 0;
+    }
+
+    /** @returns time since position was last updated */
+    timeSinceUpdate() {
+        return window.performance.now() - this.lastupdated;
+    }
+
+    /** Update the animation's position by its speed */
+    updatePosition() {
+        if (this.lastupdated) {
+            this._position += this.speed() * this.timeSinceUpdate();
+            this.lastupdated = window.performance.now();
+        }
+    }
+
+    /**
+     * Get the current position in the animation
+     */
+    get position() {
+        this.updatePosition();
+        return this._position;
+    }
+
+    start() {
+        if (!this.lastupdated) {
+            this.lastupdated = window.performance.now();
+        }
+    }
+
+    stop() {
+        this.updatePosition();
+        this.lastupdated = null;
+    }
+
+    /**
+     * Toggle the animation and return whether it is running
+     */
+    toggle() {
+        if (this.lastupdated) {
+            this.stop();
+        }
+        else {
+            this.start();
+        }
+        return (this.lastupdated !== null);
+    }
+}
