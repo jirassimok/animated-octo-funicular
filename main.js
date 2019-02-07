@@ -309,8 +309,9 @@ window.addEventListener("keyup", e => {
  * @param {KeyboardEvent} event The triggering keydown event
  * @param {'x'|'y'|'z'} axis The axis to rotate along, "x", "y", or "z".
  * @param {number} scale A multiplier for the speed; should be +1 or -1
+ * @param {boolean} stopOthers Whether to stop other translations
  */
-function translationControl(event, axis, scale) {
+function translationControl(event, axis, scale, stopOthers = true) {
     axis = axis.toLowerCase();
 
     let animation = animationState[`${axis}translation`];
@@ -321,7 +322,9 @@ function translationControl(event, axis, scale) {
 
     let alreadyRunning = animation.isrunning();
 
-    animationState.stopTranslations();
+    if (stopOthers) {
+        animationState.stopTranslations();
+    }
 
     // assumes both scales are +/- 1, which is true in this program
     if (!(alreadyRunning && animation.scale === scale)) {
@@ -459,3 +462,69 @@ bindSlider(".speed-slider.y.translation", settings, "y_speed");
 bindSlider(".speed-slider.z.translation", settings, "z_speed");
 
 clearCanvas();
+
+
+function points() {
+    let k = 1.5/2;
+    let vertices = [
+        vec3( 1.5,  0,    0),   // 0
+        vec3( 0,    1.5,  0),   // 1
+        vec3( 0,    0,    1.5), // 2
+        vec3(-1.5,  0,    0),   // 3
+        vec3( 0,   -1.5,  0),   // 4
+        vec3( 0,    0,   -1.5), // 5
+
+        vec3(0,  1,  1), // 6
+        vec3(0,  1, -1), // 7
+        vec3(0, -1, -1), // 8
+        vec3(0, -1,  1), // 9
+
+        vec3( 1, 0,  1), // 10
+        vec3( 1, 0, -1), // 11
+        vec3(-1, 0,  1), // 12
+        vec3(-1, 0, -1), // 13
+
+        vec3( 1,  1, 0), // 14
+        vec3( 1, -1, 0), // 15
+        vec3(-1,  1, 0), // 16
+        vec3(-1, -1, 0), // 17
+
+        vec3( k,  k,  k), // 18
+        vec3( k,  k, -k), // 19
+        vec3( k, -k,  k), // 20
+        vec3( k, -k, -k), // 21
+        vec3(-k,  k,  k), // 22
+        vec3(-k,  k, -k), // 23
+        vec3(-k, -k,  k), // 24
+        vec3(-k, -k, -k), // 25
+    ];
+
+    let faces = [
+        // // Square faces
+        // [0, 1, 3, 4],
+        // [0, 2, 3, 5],
+        // [1, 2, 4, 5],
+
+        // Octahedral faces
+        [0, 14, 1, 16, 3, 17, 4, 15],
+        [0, 10, 2, 12, 3, 13, 5, 11],
+        [2,  6, 1,  7, 5,  8, 4,  9],
+
+        // // Triangular faces
+        // [0, 1, 18],
+        // [1, 2, 18],
+        // [2, 0, 18]
+
+        // // Smaller triangular faces
+        // [14, 0, 18],
+        // [14, 1, 18],
+        // [10, 0, 18],
+    ];
+
+    return new Mesh(vertices, faces);
+}
+let mesh = points(); // samplePoints
+setProjection(mesh);
+setNormals(mesh);
+setVertices(mesh);
+animateMesh(mesh);
