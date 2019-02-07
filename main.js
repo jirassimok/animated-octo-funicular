@@ -109,6 +109,10 @@ function easeExplosion(t) {
 /**
  * Class tracking state of each animation (translation, rotation, and explosion)
  *
+ * The current animation state is stored in the variable {@code animationState},
+ * which should be the only instance of this class. Do not attempt to save
+ * references to its value, as it will change when the state is reset.
+ *
  * Explosion and rotation are represented as pausable timers that increase while
  * the animations are running.
  *
@@ -130,6 +134,7 @@ function easeExplosion(t) {
  *                                          in positive and negative Z direction
  */
 class AnimationState {
+    /** Do not construct AnimationStates directly. */
     constructor() {
         this.id = null; // The ID of the current animation frame
 
@@ -151,6 +156,16 @@ class AnimationState {
                              this.ztranslation];
     }
 
+    /** * Reset the global animation state */
+    reset() {
+        animationState = new AnimationState();
+    }
+
+    /** * Request an animation frame and save its ID */
+    animate(callback) {
+        this.id = window.requestAnimationFrame(callback);
+    }
+
     cancel() {
         window.cancelAnimationFrame(this.id);
     }
@@ -164,7 +179,12 @@ class AnimationState {
     }
 }
 
-// Timers for active and paused animation on current mesh
+/**
+ * Global animation state
+ *
+ * Value is subject to change at any time; do not store references to this
+ * object.
+ */
 let animationState = new AnimationState();
 
 
@@ -255,7 +275,7 @@ function setVertices(mesh) {
  * Prepare webgl and the animations for a new mesh
  */
 function animateMesh(mesh) {
-    animationState = new AnimationState();
+    animationState.reset();
     drawMesh(mesh);
 }
 
@@ -289,7 +309,7 @@ function drawMesh(mesh) {
         gl.drawArrays(gl.LINE_LOOP, offset, size);
     }
 
-    animationState.id = window.requestAnimationFrame(() => drawMesh(mesh));
+    animationState.animate(() => drawMesh(mesh));
 }
 
 
@@ -365,7 +385,7 @@ window.addEventListener("keydown", e => {
 
     switch (e.key.toUpperCase()) {
     case "Q":
-        animationState = new AnimationState();
+        animationState.reset();
         Key.deactivateAll();
         Key.activate("Q");
         e.preventDefault();
