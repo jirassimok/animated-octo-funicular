@@ -19,10 +19,15 @@ const MIN_CANVAS_WIDTH  = 200;
 const canvas = document.querySelector("#webglCanvas");
 
 // Resize the canvas
-canvas.height = Math.round(window.innerHeight / 2);
-canvas.width = Math.round(document.body.clientWidth);
-if (canvas.height < MIN_CANVAS_HEIGHT) canvas.height = MIN_CANVAS_HEIGHT;
-if (canvas.width < MIN_CANVAS_WIDTH) canvas.width = MIN_CANVAS_WIDTH;
+canvas.width = Math.max(Math.round(document.body.clientWidth),
+                        MIN_CANVAS_WIDTH);
+{ // Set width to either 200 or as tall as it can be without pushing anything else off-screen
+    canvas.height = 0;
+    let body = window.getComputedStyle(document.body);
+    let height = document.body.scrollHeight + parseInt(body.marginTop) + parseInt(body.marginTop);
+
+    canvas.height = Math.max(MIN_CANVAS_HEIGHT, window.innerHeight - height);
+}
 
 const ASPECT_RATIO = canvas.width / canvas.height;
 
