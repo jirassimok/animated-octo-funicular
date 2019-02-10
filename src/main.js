@@ -319,13 +319,41 @@ function drawMesh(mesh) {
 //// Control initialization
 
 
+// File upload controls / "main" function
+document.querySelector("#fileControls input[type='file']")
+    .addEventListener("change", e => {
+        // Hide the parse error message if it was present
+        document.querySelector("#fileControls .error-message").innerText = "";
+
+        readFile(e)
+            .then(parsePly)
+            .catch(reason => {
+                // If parsing fails, display a message to the user.
+                console.error(reason);
+                document
+                    .querySelector("#fileControls .error-message")
+                    .innerText = "parse error; see console for details";
+                throw reason;
+            })
+            .then(([vertices, faces]) => {
+                animationState.cancel(); // Stop the ongoing animation
+                // Prepare the mesh and mesh-based WebGL variables
+                let mesh = new Mesh(vertices, faces);
+                setProjection(mesh);
+                setNormals(mesh);
+                setVertices(mesh);
+
+                animateMesh(mesh); // start the animations
+            })
+            .catch(console.error);
+    });
+
+// Remove highlight from Q and F keys when they are released.x
 window.addEventListener("keyup", e => {
     switch (e.key.toUpperCase()) {
-    case "Q":
-        Key.deactivate("Q");
-        break;
+    case "Q": // fallthrough
     case "F":
-        Key.deactivate("F");
+        Key.deactivate(e.key);
         break;
     }
 });
@@ -384,13 +412,14 @@ function toggleControl(event, animation) {
     event.preventDefault();
 }
 
-
+// Keyboard controls
 window.addEventListener("keydown", e => {
     if (e.ctrlKey || e.altKey || e.metaKey) {
-        return;
+        return; // Ignore keys with non-shift modifiers
     }
 
     switch (e.key.toUpperCase()) {
+        // Reset keys
     case "Q":
         animationState.reset();
         Key.deactivateAll();
@@ -404,6 +433,7 @@ window.addEventListener("keydown", e => {
         e.preventDefault();
         break;
 
+        // Toggle-able controls
     case "B":
         toggleControl(e, "explosion");
         break;
@@ -411,6 +441,7 @@ window.addEventListener("keydown", e => {
         toggleControl(e, "xrotation");
         break;
 
+        // Translation controls
     case "X":
         translationControl(e, "x", 1, "C");
         break;
@@ -432,34 +463,8 @@ window.addEventListener("keydown", e => {
     }
 });
 
-document.querySelector("#fileControls input[type='file']")
-    .addEventListener("change", e => {
-        readFile(e)
-            .then(parsePly)
-            .catch(reason => {
-                console.error(reason);
-                document
-                    .querySelector("#fileControls .error-message")
-                    .innerText = "parse error; see console for details";
-                throw reason;
-            })
-            .then(([vertices, faces]) => {
-                if (animationState !== undefined) {
-                    animationState.cancel();
-                }
-                let mesh = new Mesh(vertices, faces);
-                setProjection(mesh);
-                setNormals(mesh);
-                setVertices(mesh);
-                animateMesh(mesh);
-            })
-            .catch(console.error);
-    });
 
-
-
-//// Non-keyboard animation control setup
-
+//// Configuration control setup
 
 // Bind the multi-axis-movement checkbox
 document.querySelector("#multiAxisMovement")
