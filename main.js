@@ -16,6 +16,12 @@ import * as MV from "./MV+.js";
 const MIN_CANVAS_HEIGHT = 200;
 const MIN_CANVAS_WIDTH  = 200;
 
+const X_FIELD_OF_VIEW = 90;
+const ASPECT_RATIO = 5/3; // canvas.width / canvas.height;
+
+const PERSPECTIVE_NEAR_PLANE = 0.001;
+const PERSPECTIVE_FAR_PLANE = 1000;
+
 const canvas = document.querySelector("#webglCanvas");
 
 // Resize the canvas
@@ -29,10 +35,6 @@ canvas.width = Math.max(Math.round(document.body.clientWidth),
     canvas.height = Math.max(MIN_CANVAS_HEIGHT, window.innerHeight - height);
 }
 
-const ASPECT_RATIO = canvas.width / canvas.height;
-
-const PERSPECTIVE_NEAR_PLANE = 0.001;
-const PERSPECTIVE_FAR_PLANE = 1000;
 
 //// Set up WebGL, the program, buffers, and shader variables
 
@@ -140,17 +142,20 @@ function distance(p1, p2) {
 function setProjection(mesh) {
     let bounds = mesh.extent;
 
-    let viewDistance = bounds.near + bounds.depth;
-
-    // y-FOV required to view entire bounding box from distance = depth
-    let fovy = 2 * Math.atan(bounds.height / (2 * bounds.depth));
+    let fov_x = X_FIELD_OF_VIEW * Math.PI / 180,
+        fov_y = fov_x / ASPECT_RATIO,
+        // Distance required to view entire width/height
+        width_distance = bounds.width / (2 * Math.tan(fov_x / 2)),
+        height_distance = bounds.height / (2 * Math.tan(fov_y / 2)),
+        // Distance camera must be to view full mesh
+        camera_z = bounds.near + Math.max(width_distance, height_distance);
 
     let projectionMatrix = MV.perspectiveRad(
-        fovy, ASPECT_RATIO, PERSPECTIVE_NEAR_PLANE, PERSPECTIVE_FAR_PLANE);
+        fov_y, ASPECT_RATIO, PERSPECTIVE_NEAR_PLANE, PERSPECTIVE_FAR_PLANE);
 
 	let eye = vec3(bounds.midpoint[0],
                    bounds.midpoint[1],
-                   viewDistance),
+                   camera_z),
 	    at = bounds.midpoint,
 	    up = vec3(0, 1, 0);
 
