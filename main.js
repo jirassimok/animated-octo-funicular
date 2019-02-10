@@ -31,7 +31,8 @@ canvas.width = Math.max(Math.round(document.body.clientWidth),
 
 const ASPECT_RATIO = canvas.width / canvas.height;
 
-
+const PERSPECTIVE_NEAR_PLANE = 0.001;
+const PERSPECTIVE_FAR_PLANE = 1000;
 
 //// Set up WebGL, the program, buffers, and shader variables
 
@@ -145,7 +146,7 @@ function setProjection(mesh) {
     let fovy = 2 * Math.atan(bounds.height / (2 * bounds.depth));
 
     let projectionMatrix = MV.perspectiveRad(
-        fovy, ASPECT_RATIO, bounds.near, bounds.far);
+        fovy, ASPECT_RATIO, PERSPECTIVE_NEAR_PLANE, PERSPECTIVE_FAR_PLANE);
 
 	let eye = vec3(bounds.midpoint[0],
                    bounds.midpoint[1],
