@@ -357,6 +357,13 @@ document.querySelector("#fileControls input[type='file']")
     .addEventListener("change", e => {
         readFile(e)
             .then(parsePly)
+            .catch(reason => {
+                console.error(reason);
+                document
+                    .querySelector("#fileControls .error-message")
+                    .innerText = "parse error; see console for details";
+                throw reason;
+            })
             .then(([vertices, faces]) => {
                 if (animationState !== undefined) {
                     animationState.cancel();
@@ -367,12 +374,7 @@ document.querySelector("#fileControls input[type='file']")
                 setVertices(mesh);
                 animateMesh(mesh);
             })
-            .catch(reason => {
-                document
-                    .querySelector("#fileControls .error-message")
-                    .innerText = "parse error; see console for details";
-                throw reason;
-            });
+            .catch(console.error);
     });
 
 
