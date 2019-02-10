@@ -4,7 +4,7 @@ import { Extent } from "./Extent.js";
 import { readFile, parsePly } from "./filereaders.js";
 import { Mesh } from "./Mesh.js";
 import { vec2, vec3, vec4 } from "./MV+.js";
-import { PausableTimer, ReversableTimer, AnimationTracker } from "./Timer.js";
+import { AnimationTracker } from "./Animations.js";
 import { setupWebGL, setupProgram, enableVAO } from "./webgl-setup.js";
 
 import * as Key from "./KeyboardUI.js";
