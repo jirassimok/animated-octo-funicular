@@ -335,10 +335,10 @@ window.addEventListener("keydown", e => {
         break;
 
     case "B":
-        toggleControl(event, "explosion");
+        toggleControl(e, "explosion");
         break;
     case "R":
-        toggleControl(event, "xrotation");
+        toggleControl(e, "xrotation");
         break;
 
     case "X":
@@ -401,7 +401,6 @@ document.querySelector("#fileControls input[type='file']")
  * @param {String} selector A selector string for the slider
  * @param {Object} object   The object that should have a property set
  * @param {String} property The name of the property to set
- * @param {String} default asdf
  */
 function bindSlider(selector, object, property) {
     let defaultvalue = object[property],
