@@ -1,7 +1,7 @@
 /* Extra features:
  *
  * - Pressing F stops all active animations
- * - Pressing Q resets the mesh to its initial position and stops all animations
+ * - Pressing Q stops all animations and resets the mesh to its initial position.
  *
  * - Adjustable animation speeds. All of the animations have adjustable speed,
  *   which can be updated without restarting and without causing the animations
