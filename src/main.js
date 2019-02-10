@@ -288,7 +288,7 @@ function animateMesh(mesh) {
 function drawMesh(mesh) {
     let bounds = mesh.extent;
 
-    let explosionSize = settings.explosion_scale * Math.max(bounds.width, bounds.height, bounds.depth),
+    let explosionSize = settings.explosion_scale * bounds.radius,
         t_exp = animationState.explosion.position,
         normalScale = easeExplosion(t_exp); // Distance of movement along face normals
 
