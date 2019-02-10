@@ -3,7 +3,12 @@
  * {@link KeyboardEvent.key}, case-insensitive.
  */
 function uiKey(key) {
-    return document.querySelector(`kbd.key.${key.toLowerCase()}`);
+    if (typeof key === "string") {
+        return document.querySelector(`kbd.key.${key.toLowerCase()}`);
+    }
+    else {
+        return key;
+    }
 }
 
 /**
@@ -28,16 +33,26 @@ export function activate(key, offKey = null) {
 /**
  * Toggle the activation highlight for a keyboard control in the UI
  *
- * If the key has the {@code shared} CSS class, deactivate all other keys with
- * that class.
+ * @param {String} key The key to toggle
+ * @param {?String} offKey A key to deactivate if the toggled key is turned on
+ * @param {?boolean} disableShared whether to disabled shared keys
+ *
+ * If the key has the {@code shared} CSS class and {@code disableShared} is
+ * true, deactivate all other keys with that class.
  */
-export function toggle(key) {
+export function toggle(key, offKey = null, disableShared = true) {
     key = uiKey(key);
     if (key) {
-        if (key.classList.contains("shared")) {
+        let active = key.classList.toggle("active");
+        if (disableShared && key.classList.contains("shared")) {
             deactivateSelector(".shared");
         }
-        key.classList.toggle("active");
+        if (active) {
+            activate(key);
+            if (offKey) {
+                deactivate(offKey);
+            }
+        }
     }
 }
 

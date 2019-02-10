@@ -275,10 +275,11 @@ window.addEventListener("keyup", e => {
  * @param {KeyboardEvent} event The triggering keydown event
  * @param {'x'|'y'|'z'} axis The axis to rotate along, "x", "y", or "z".
  * @param {number} scale A multiplier for the speed; should be +1 or -1
+ * @param {String} opposingKey The key that produces the opposite translation
  *
  * If {@link settings.multi_axis_movement} is false, stops all other translations.
  */
-function translationControl(event, axis, scale) {
+function translationControl(event, axis, scale, opposingKey) {
     axis = axis.toLowerCase();
 
     let animation = animationState[`${axis}translation`];
@@ -302,7 +303,7 @@ function translationControl(event, axis, scale) {
     else {
         animation.stop();
     }
-    Key.toggle(event.key);
+    Key.toggle(event.key, opposingKey, !settings.multi_axis_movement);
     event.preventDefault();
 }
 
@@ -350,22 +351,22 @@ window.addEventListener("keydown", e => {
         break;
 
     case "X":
-        translationControl(e, "x", 1);
+        translationControl(e, "x", 1, "C");
         break;
     case "C":
-        translationControl(e, "x", -1);
+        translationControl(e, "x", -1, "X");
         break;
     case "Y":
-        translationControl(e, "y", 1);
+        translationControl(e, "y", 1, "U");
         break;
     case "U":
-        translationControl(e, "y", -1);
+        translationControl(e, "y", -1, "Y");
         break;
     case "Z":
-        translationControl(e, "z", 1);
+        translationControl(e, "z", 1, "A");
         break;
     case "A":
-        translationControl(e, "z", -1);
+        translationControl(e, "z", -1, "Z");
         break;
     }
 });
