@@ -29,3 +29,7 @@ kbd.key.active {
     color: #D3D3D3;
     background-color: #404040;
 }
+
+.center-text {
+    text-align: center;
+}

@@ -415,5 +415,6 @@ bindSlider(".speed-slider.x.rotation", settings, "rotation_speed");
 bindSlider(".speed-slider.x.translation", settings, "x_speed");
 bindSlider(".speed-slider.y.translation", settings, "y_speed");
 bindSlider(".speed-slider.z.translation", settings, "z_speed");
+bindSlider(".scale-slider.explosion", settings, "explosion_scale");
 
 clearCanvas();
