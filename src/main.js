@@ -6,7 +6,8 @@
  * - Adjustable animation speeds. All of the animations have adjustable speed,
  *   which can be updated without restarting and without causing the animations
  *   to skip.
- * - Adjustable "explosion" magnitude.
+ * - Adjustable "explosion" magnitude (this will cause the explosion to skip,
+ *   because it effects the size of the explosion immediately).
  *
  * - When the checkbox is checked, the mesh may be translated in multiple
  *   directions at the same time.
