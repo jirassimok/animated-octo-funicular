@@ -33,15 +33,27 @@ import * as Key from "./KeyboardUI.js";
 import * as MV from "./MV+.js";
 
 
-//// Prepare the canvas
+//// Constants
 
-const X_FIELD_OF_VIEW = 90;
-const ASPECT_RATIO = 5/3;
+// Initial settings. See the settings object.
+const EXPLOSION_SCALE = 0.1,
+      EXPLOSION_SPEED = 0.01,
+      ROTATION_SPEED = 360/1000,
+      X_SPEED = 0.01,
+      Y_SPEED = 0.01,
+      Z_SPEED = 0.01,
+      MULTI_AXIS_MOVEMENT = false;
+
+const X_FIELD_OF_VIEW = 90,
+      ASPECT_RATIO = 5/3;
 
 const MIN_CANVAS_HEIGHT = 200;
 
-const PERSPECTIVE_NEAR_PLANE = 0.001;
-const PERSPECTIVE_FAR_PLANE = 1000;
+const PERSPECTIVE_NEAR_PLANE = 0.001,
+      PERSPECTIVE_FAR_PLANE = 1000;
+
+
+//// Prepare the canvas
 
 const canvas = document.querySelector("#webglCanvas");
 
@@ -101,7 +113,7 @@ const shader = Object.freeze({
 //// Global animation state
 
 /**
- * Global animation settings
+ * Container for configural animation settings
  *
  * @property {number} explosion_scale   multiplier for explosion size
  * @property {number} explosion_speed   percent of explosion per millisecond
@@ -112,15 +124,33 @@ const shader = Object.freeze({
  * @property {boolean} multi_axis_movement whether to allow movement along more
  *                                         than one axis at the same time
  */
-const settings = Object.seal({
-    explosion_scale: 0.1,
-    explosion_speed: 0.01,
-    rotation_speed: 360/1000,
-    x_speed: 0.01,
-    y_speed: 0.01,
-    z_speed: 0.01,
-    multi_axis_movement: false,
-});
+class Settings {
+    constructor() {
+        this.initialize();
+        Object.seal(this); // prevent addition of new properties
+    }
+
+    initialize() {
+        this.explosion_scale = EXPLOSION_SCALE;
+        this.explosion_speed = EXPLOSION_SPEED;
+        this.rotation_speed = ROTATION_SPEED;
+        this.x_speed = X_SPEED;
+        this.y_speed = Y_SPEED;
+        this.z_speed = Z_SPEED;
+        this.multi_axis_movement = MULTI_AXIS_MOVEMENT;
+    }
+
+    reset() {
+        this.initialize();
+    }
+}
+
+/**
+ * Global user-configurable settings object
+ *
+ * @see Settings
+ */
+const settings = new Settings();
 
 function resetSettings() {
     settings.explosion_scale = 0.1;
@@ -142,10 +172,9 @@ function easeExplosion(t) {
 /**
  * Global animation state
  *
- * Value is subject to change at any time; do not store references to this
- * object.
+ * @see AnimationState
  */
-let animationState = new AnimationState(settings);
+const animationState = new AnimationState(settings);
 
 
 
