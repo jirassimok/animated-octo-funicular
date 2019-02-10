@@ -3,6 +3,15 @@
 import { vec3, normalize } from "./MV+.js";
 import { Extent } from "./Extent.js";
 
+/**
+ * Represents a mesh of separable faces.
+ *
+ * Stores the mesh as a list of vertices, a list of normals for the vertices,
+ * and a list of (size, offset) pairs representing the faces by their positions
+ * in the other two lists.
+ *
+ * The constructor takes in a list of vertices and an index array of faces.
+ */
 export class Mesh {
     constructor(vertices, faces) {
         this.extent = Extent.fromVecs(vertices);

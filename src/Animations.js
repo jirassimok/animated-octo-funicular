@@ -84,13 +84,20 @@ export class AnimationState {
 }
 
 /**
- * Timer for animations; tracks position in the animation rather than time
+ * Timer for animations; tracks position in an animation
  *
  * @property {number} speed A function that will return the animation's speed in
  *                          units per millisecond
  * @property {?number} lastupdated The time the animation was last updated, or
- *                                 null if the animation is not running.
+ *                                 null if the animation is not running
  * @property {number} scale A multiplier for the speed, useful for reversing (-1)
+ *
+ * Whenever the animation is checked, if it is running, the time since the last
+ * check is multiplied by its speed and scale, and the result is added to the
+ * position.
+ *
+ * Every millisecond that the animation runs, it moves an amount equal to the
+ * product of its speed and scale.
  */
 export class AnimationTracker {
     constructor(speed = () => 1) {
