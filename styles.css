@@ -21,6 +21,8 @@ kbd.key {
     font-family: sans-serif;
     font-size: 10pt;
 
+    text-align: center;
+
     width: 1.25em;
     line-height: 3ex;
 }
