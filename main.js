@@ -1,3 +1,25 @@
+/* Extra features:
+ *
+ * - Pressing F stops all active animations
+ * - Pressing Q resets the mesh to its initial position and stops all animations
+ *
+ * - Adjustable animation speeds. All of the animations have adjustable speed,
+ *   which can be updated without restarting and without causing the animations
+ *   to skip.
+ * - Adjustable "explosion" magnitude.
+ *
+ * - When the checkbox is checked, the mesh may be translated in multiple
+ *   directions at the same time.
+ *
+ * - Anti-lag: animations are based on time passed and position, not frames, so
+ *   a delay between frames will not prevent the animation from progressing
+ *   normally.
+ *
+ * - Visual UI: when an animation is active, the corresponding key in the list
+ *   of controls is highlighted. The Q and F controls instead highlight when
+ *   those keys are pressed.
+ */
+
 "use strict";
 
 import { Extent } from "./Extent.js";
