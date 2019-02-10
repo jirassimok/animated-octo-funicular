@@ -72,4 +72,10 @@ export class Extent {
     get depth() {
         return Math.abs(this.near - this.far);
     }
+
+    get radius() {
+        return Math.sqrt((this.height / 2) ** 2 +
+                         (this.width / 2) ** 2 +
+                         (this.depth / 2) ** 2);
+    }
 }

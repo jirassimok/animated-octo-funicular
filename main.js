@@ -227,9 +227,9 @@ function drawMesh(mesh) {
 
     let rotation = MV.rotateX(animationState.xrotation.position);
 
-    let tr_x = bounds.width  * animationState.xtranslation.position,
-        tr_y = bounds.height * animationState.ytranslation.position,
-        tr_z = bounds.depth  * animationState.ztranslation.position,
+    let tr_x = bounds.radius * animationState.xtranslation.position,
+        tr_y = bounds.radius * animationState.ytranslation.position,
+        tr_z = bounds.radius * animationState.ztranslation.position,
         translation = MV.translate(tr_x, tr_y, tr_z);
 
     let model = MV.mult(translation, rotation);
