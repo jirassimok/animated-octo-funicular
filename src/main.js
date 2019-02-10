@@ -127,6 +127,7 @@ const shader = Object.freeze({
 class Settings {
     constructor() {
         this.initialize();
+        this.uiElements = [];
         Object.seal(this); // prevent addition of new properties
     }
 
@@ -142,6 +143,23 @@ class Settings {
 
     reset() {
         this.initialize();
+
+        for (let [setting, element] of this.uiElements) {
+            element.value = this[setting];
+        }
+    }
+
+    /**
+     * Register a UI element to reset when settings reset
+     *
+     * @param {String} setting The setting associated with the UI element
+     * @param {Element} element The element to associate with the setting
+     *
+     * When settings are reset, the element's {@code value} will be set to the
+     * setting's value.
+     */
+    bindUI(setting, element) {
+        this.uiElements.push([setting, element]);
     }
 }
 
@@ -151,14 +169,6 @@ class Settings {
  * @see Settings
  */
 const settings = new Settings();
-
-function resetSettings() {
-    settings.explosion_scale = 0.1;
-    settings.explosion_speed = 0.01;
-    settings.rotation_speed = 360/1000;
-    settings.x_speed = settings.y_speed = settings.z_speed = 0.01;
-    settings.multi_axis_movement = false;
-}
 
 /**
  * Determine current explosion position as function of time
@@ -456,6 +466,7 @@ document.querySelector("#multiAxisMovement")
     .addEventListener("change", e => {
         settings.multi_axis_movement = e.target.value;
     });
+settings.bindUI("multi_axis_movement", document.querySelector("#multiAxisMovement"));
 
 /**
  * Bind an event listener for a slider that sets a property of an object.
@@ -472,6 +483,8 @@ function bindSlider(selector, object, property) {
         slider = document.querySelector(selector);
 
     slider.value = defaultvalue;
+
+    settings.bindUI(property, slider);
 
     document.querySelector("button.reset") .addEventListener("click", e => {
         object[property] = defaultvalue;
