@@ -4,7 +4,7 @@ import { Extent } from "./Extent.js";
 import { readFile, parsePly } from "./filereaders.js";
 import { Mesh } from "./Mesh.js";
 import { vec2, vec3, vec4 } from "./MV+.js";
-import { AnimationTracker } from "./Animations.js";
+import { AnimationState } from "./Animations.js";
 import { setupWebGL, setupProgram, enableVAO } from "./webgl-setup.js";
 
 import * as Key from "./KeyboardUI.js";
@@ -107,85 +107,12 @@ function easeExplosion(t) {
 }
 
 /**
- * Class tracking state of each animation (translation, rotation, and explosion)
- *
- * The current animation state is stored in the variable {@code animationState},
- * which should be the only instance of this class. Do not attempt to save
- * references to its value, as it will change when the state is reset.
- *
- * Explosion and rotation are represented as pausable timers that increase while
- * the animations are running.
- *
- * The translations are represented as bi-directional timers that increase for
- * positive motion and decrease for negative motion.
- *
- * The animations' effects are determined by functions of the timers' values in
- * {@link drawMesh}.
- *
- * @property {PausableTimer} explosion time spent in explosion/pulse animation
- *
- * @property {AnimationTracer} xrotation State of rotation around X-axis
- *
- * @property {ReversableTimer} xtranslation difference between time spent moving
- *                                          in positive and negative X direction
- * @property {ReversableTimer} ytranslation difference between time spent moving
- *                                          in positive and negative Y direction
- * @property {ReversableTimer} ztranslation difference between time spent moving
- *                                          in positive and negative Z direction
- */
-class AnimationState {
-    /** Do not construct AnimationStates directly. */
-    constructor() {
-        this.id = null; // The ID of the current animation frame
-
-        this.explosion = new AnimationTracker(() => settings.explosion_speed);
-        this.xrotation = new AnimationTracker(() => settings.rotation_speed);
-
-        this.xtranslation = new AnimationTracker(() => settings.x_speed);
-        this.ytranslation = new AnimationTracker(() => settings.y_speed);
-        this.ztranslation = new AnimationTracker(() => settings.z_speed);
-
-        this.animations = [this.explosion,
-                           this.xrotation,
-                           this.xtranslation,
-                           this.ytranslation,
-                           this.ztranslation];
-
-        this.translations = [this.xtranslation,
-                             this.ytranslation,
-                             this.ztranslation];
-    }
-
-    /** * Reset the global animation state */
-    reset() {
-        animationState = new AnimationState();
-    }
-
-    /** * Request an animation frame and save its ID */
-    animate(callback) {
-        this.id = window.requestAnimationFrame(callback);
-    }
-
-    cancel() {
-        window.cancelAnimationFrame(this.id);
-    }
-
-    stopAnimations() {
-        this.animations.forEach(a => a.stop());
-    }
-
-    stopTranslations() {
-        this.translations.forEach(a => a.stop());
-    }
-}
-
-/**
  * Global animation state
  *
  * Value is subject to change at any time; do not store references to this
  * object.
  */
-let animationState = new AnimationState();
+let animationState = new AnimationState(settings);
 
 
 

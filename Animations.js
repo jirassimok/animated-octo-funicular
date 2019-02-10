@@ -1,116 +1,85 @@
 /**
- * Keeps track of time passed, and can be paused
+ * Class tracking state of each animation (translation, rotation, and explosion)
+ *
+ * The current animation state is stored in the variable {@code animationState},
+ * which should be the only instance of this class. Do not attempt to save
+ * references to its value, as it will change when the state is reset.
+ *
+ * Explosion and rotation are represented as pausable timers that increase while
+ * the animations are running.
+ *
+ * The translations are represented as bi-directional timers that increase for
+ * positive motion and decrease for negative motion.
+ *
+ * The animations' effects are determined by functions of the timers' values in
+ * {@link drawMesh}.
+ *
+ * @property {PausableTimer} explosion time spent in explosion/pulse animation
+ *
+ * @property {AnimationTracer} xrotation State of rotation around X-axis
+ *
+ * @property {ReversableTimer} xtranslation difference between time spent moving
+ *                                          in positive and negative X direction
+ * @property {ReversableTimer} ytranslation difference between time spent moving
+ *                                          in positive and negative Y direction
+ * @property {ReversableTimer} ztranslation difference between time spent moving
+ *                                          in positive and negative Z direction
  */
-export class PausableTimer {
-    constructor() {
-        this.isrunning = false;
-        this.laststarted = null; // when the animation was last resumed
-        this._time = 0; // total time animated
-    }
-
-    /** @returns total time active, in milliseconds */
-    timeElapsed() {
-        return this._time + (this.isrunning
-                             ? this.timeSinceStart()
-                             : 0);
-    }
-
-    /** @returns time since the timer was last started */
-    timeSinceStart() {
-        return window.performance.now() - this.laststarted;
-    }
-
+export class AnimationState {
     /**
-     * Switch the timer between started and stopped
-     * @returns true if the timer was started
+     * Create a new animation state obejct using the given settings object.
+     *
+     * @param {Object} settings The animations' settings.
+     *
+     * The settings object may be modified to change the animation's settings.
+     *
+     * To replace the animation state, use the {@code reset} method.
      */
-    toggle() {
-        if (this.isrunning) {
-            this.stop();
-        }
-        else {
-            this.start();
-        }
-        return this.isrunning;
+    constructor(settings) {
+        this.id = null; // The ID of the current animation frame
+        this.settings = settings;
+        this.initialize(settings);
     }
 
-    start() {
-        if (!this.isrunning) {
-            this.isrunning = true;
-            this.laststarted = window.performance.now();
-        }
+    initialize(settings) {
+        this.explosion = new AnimationTracker(() => settings.explosion_speed);
+        this.xrotation = new AnimationTracker(() => settings.rotation_speed);
+
+        this.xtranslation = new AnimationTracker(() => settings.x_speed);
+        this.ytranslation = new AnimationTracker(() => settings.y_speed);
+        this.ztranslation = new AnimationTracker(() => settings.z_speed);
+
+        this.animations = [this.explosion,
+                           this.xrotation,
+                           this.xtranslation,
+                           this.ytranslation,
+                           this.ztranslation];
+
+        this.translations = [this.xtranslation,
+                             this.ytranslation,
+                             this.ztranslation];
     }
 
-    stop() {
-        if (this.isrunning) {
-            this.isrunning = false;
-            // Add time since last start to total time
-            this._time += this.timeSinceStart();
-            this.laststarted = null;
-        }
-    }
-}
-
-/**
- * Keeps track of time passed, can be paused, and can be run backwards
- */
-export class ReversableTimer extends PausableTimer {
-    constructor() {
-        super();
-        this.reversed = false;
+    /** * Reset the global animation state */
+    reset() {
+        this.initialize(this.settings);
     }
 
-    timeSinceStart() {
-        return (1 - 2 * this.reversed) *
-            (window.performance.now() - this.laststarted);
+    /** * Request an animation frame and save its ID */
+    animate(callback) {
+        this.id = window.requestAnimationFrame(callback);
     }
 
-    startReverse() {
-        super.stop();
-        this.reversed = true;
-        super.start();
+    cancel() {
+        window.cancelAnimationFrame(this.id);
     }
 
-    startForward() {
-        super.stop();
-        this.reversed = false;
-        super.start();
+    stopAnimations() {
+        this.animations.forEach(a => a.stop());
     }
 
-    stopReverse() {
-        if (this.reversed) {
-            super.stop();
-        }
-    }
-
-    stopForward() {
-        if (!this.reversed) {
-            super.stop();
-        }
-    }
-
-    /**
-     * If running forward, stop. Otherwise, run forward.
-     */
-    toggleForward() {
-        if (this.isrunning && !this.reversed) {
-            super.stop();
-        }
-        else {
-            this.startForward();
-        }
-    }
-
-    /**
-     * If running backward, stop. Otherwise, run backwards.
-     */
-    toggleReverse() {
-        if (this.isrunning && this.reversed) {
-            super.stop();
-        }
-        else {
-            this.startReverse();
-        }
+    stopTranslations() {
+        this.translations.forEach(a => a.stop());
     }
 }
 
