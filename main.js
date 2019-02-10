@@ -87,6 +87,8 @@ const shader = Object.freeze({
  * @property {number} x_speed           multiplier for movement along X-axis
  * @property {number} y_speed           multiplier for movement along Y-axis
  * @property {number} z_speed           multiplier for movement along Z axis
+ * @property {boolean} multi_axis_movement whether to allow movement along more
+ *                                         than one axis at the same time
  */
 const settings = Object.seal({
     explosion_scale: 0.1,
@@ -94,7 +96,8 @@ const settings = Object.seal({
     rotation_speed: 360/1000,
     x_speed: 0.01,
     y_speed: 0.01,
-    z_speed: 0.01
+    z_speed: 0.01,
+    multi_axis_movement: false,
 });
 
 function resetSettings() {
@@ -102,6 +105,7 @@ function resetSettings() {
     settings.explosion_speed = 0.01;
     settings.rotation_speed = 360/1000;
     settings.x_speed = settings.y_speed = settings.z_speed = 0.01;
+    settings.multi_axis_movement = false;
 }
 
 /**
@@ -271,9 +275,10 @@ window.addEventListener("keyup", e => {
  * @param {KeyboardEvent} event The triggering keydown event
  * @param {'x'|'y'|'z'} axis The axis to rotate along, "x", "y", or "z".
  * @param {number} scale A multiplier for the speed; should be +1 or -1
- * @param {boolean} stopOthers Whether to stop other translations
+ *
+ * If {@link settings.multi_axis_movement} is false, stops all other translations.
  */
-function translationControl(event, axis, scale, stopOthers = true) {
+function translationControl(event, axis, scale) {
     axis = axis.toLowerCase();
 
     let animation = animationState[`${axis}translation`];
@@ -284,7 +289,7 @@ function translationControl(event, axis, scale, stopOthers = true) {
 
     let alreadyRunning = animation.isrunning();
 
-    if (stopOthers) {
+    if (!settings.multi_axis_movement) {
         animationState.stopTranslations();
     }
 
@@ -293,6 +298,9 @@ function translationControl(event, axis, scale, stopOthers = true) {
         // Start animation unless it was already running in the right diretion
         animation.scale = scale;
         animation.start();
+    }
+    else {
+        animation.stop();
     }
     Key.toggle(event.key);
     event.preventDefault();
@@ -391,6 +399,11 @@ document.querySelector("#fileControls input[type='file']")
 //// Non-keyboard animation control setup
 
 
+// Bind the multi-axis-movement checkbox
+document.querySelector("#multiAxisMovement")
+    .addEventListener("change", e => {
+        settings.multi_axis_movement = e.target.value;
+    });
 
 /**
  * Bind an event listener for a slider that sets a property of an object.
