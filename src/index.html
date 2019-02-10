@@ -21,8 +21,6 @@
          void main() {
              gl_Position = projectionMatrix * viewMatrix * modelMatrix *
                            vec4((explosionScale * faceNormal + aPosition), 1);
-             gl_PointSize = 4.0;
-             fragColor = vec4(1, 1, 1, 1);
          }
         </script>
 
@@ -32,7 +30,7 @@
 
          void main()
          {
-             gl_FragColor = fragColor;
+             gl_FragColor = vec4(1, 1, 1, 1);
          }
         </script>
     </head>
