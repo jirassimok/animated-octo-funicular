@@ -156,7 +156,7 @@ function setProjection(mesh) {
         width_distance = bounds.width / (2 * Math.tan(fov_x / 2)),
         height_distance = bounds.height / (2 * Math.tan(fov_y / 2)),
         // Distance camera must be to view full mesh
-        camera_z = bounds.near + Math.max(width_distance, height_distance);
+        camera_z = bounds.near + Math.max(width_distance, height_distance) * 1.1;
 
     let projectionMatrix = MV.perspectiveRad(
         fov_y, ASPECT_RATIO, PERSPECTIVE_NEAR_PLANE, PERSPECTIVE_FAR_PLANE);
