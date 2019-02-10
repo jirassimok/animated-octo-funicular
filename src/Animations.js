@@ -71,7 +71,9 @@ export class AnimationState {
     }
 
     cancel() {
-        window.cancelAnimationFrame(this.id);
+        if (this.id !== null) {
+            window.cancelAnimationFrame(this.id);
+        }
     }
 
     stopAnimations() {
