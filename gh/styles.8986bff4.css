@@ -1,0 +1,37 @@
+body {
+    font-family: sans-serif;
+}
+
+#errorMessage {
+    display: none;
+}
+
+/* Selector for key column of control table */
+table.controls > tbody > tr > td:first-child {
+    text-align: center;
+}
+
+kbd.key {
+    color: black;
+    background-color: #D3D3D3;
+    border: 1px solid black;
+    border-radius: 5px;
+
+    display: inline-block;
+    font-family: sans-serif;
+    font-size: 10pt;
+
+    text-align: center;
+
+    width: 1.25em;
+    line-height: 3ex;
+}
+
+kbd.key.active {
+    color: #D3D3D3;
+    background-color: #404040;
+}
+
+.center-text {
+    text-align: center;
+}
