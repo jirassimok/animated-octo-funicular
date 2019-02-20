@@ -110,7 +110,8 @@ would include four vertices (and their normals), starting at the fifth (6 - 1).
 
 This class is constructed using the data from a PLY files: a list of vertices
 and an index array for the faces. It duplicates vertices and computes the
-normals as necessary when it is created.
+normals as necessary when it is created. The normals are computed using the
+Newell method.
 
 An example of this representation is given at the end of this file.
 
